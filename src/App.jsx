@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Navbar from "./components/Navbar";
 import SimulatedMap from "./components/SimulatedMap";
 import AdminPanel from "./components/AdminPanel";
@@ -19,13 +19,85 @@ import { DEFAULT_ADMIN_HASH } from "./utils/security";
 
 export default function App() {
   const [userRole, setUserRole] = useState(null); // 'admin' | 'courier' | null
-  const [adminPasswordHash, setAdminPasswordHash] = useState(DEFAULT_ADMIN_HASH);
+  const [adminPasswordHash, setAdminPasswordHash] = useState(() => {
+    return localStorage.getItem("rapiconta_admin_pass_hash") || DEFAULT_ADMIN_HASH;
+  });
   const [activeTab, setActiveTab] = useState("admin");
-  const [couriers, setCouriers] = useState(INITIAL_MENSAJEROS);
-  const [clients, setClients] = useState(INITIAL_CLIENTES);
-  const [products, setProducts] = useState(INITIAL_PRODUCTOS);
-  const [orders, setOrders] = useState(INITIAL_PEDIDOS);
-  const [transactions, setTransactions] = useState(INITIAL_TRANSACCIONES);
+
+  const [couriers, setCouriers] = useState(() => {
+    const saved = localStorage.getItem("rapiconta_couriers");
+    if (saved) {
+      try {
+        return JSON.parse(saved);
+      } catch (e) {}
+    }
+    return INITIAL_MENSAJEROS;
+  });
+
+  const [clients, setClients] = useState(() => {
+    const saved = localStorage.getItem("rapiconta_clients");
+    if (saved) {
+      try {
+        return JSON.parse(saved);
+      } catch (e) {}
+    }
+    return INITIAL_CLIENTES;
+  });
+
+  const [products, setProducts] = useState(() => {
+    const saved = localStorage.getItem("rapiconta_products");
+    if (saved) {
+      try {
+        return JSON.parse(saved);
+      } catch (e) {}
+    }
+    return INITIAL_PRODUCTOS;
+  });
+
+  const [orders, setOrders] = useState(() => {
+    const saved = localStorage.getItem("rapiconta_orders");
+    if (saved) {
+      try {
+        return JSON.parse(saved);
+      } catch (e) {}
+    }
+    return INITIAL_PEDIDOS;
+  });
+
+  const [transactions, setTransactions] = useState(() => {
+    const saved = localStorage.getItem("rapiconta_transactions");
+    if (saved) {
+      try {
+        return JSON.parse(saved);
+      } catch (e) {}
+    }
+    return INITIAL_TRANSACCIONES;
+  });
+
+  // Persist states to localStorage whenever they change
+  useEffect(() => {
+    localStorage.setItem("rapiconta_admin_pass_hash", adminPasswordHash);
+  }, [adminPasswordHash]);
+
+  useEffect(() => {
+    localStorage.setItem("rapiconta_couriers", JSON.stringify(couriers));
+  }, [couriers]);
+
+  useEffect(() => {
+    localStorage.setItem("rapiconta_clients", JSON.stringify(clients));
+  }, [clients]);
+
+  useEffect(() => {
+    localStorage.setItem("rapiconta_products", JSON.stringify(products));
+  }, [products]);
+
+  useEffect(() => {
+    localStorage.setItem("rapiconta_orders", JSON.stringify(orders));
+  }, [orders]);
+
+  useEffect(() => {
+    localStorage.setItem("rapiconta_transactions", JSON.stringify(transactions));
+  }, [transactions]);
   
   // Track selected courier for courier simulator view
   const [selectedCourierId, setSelectedCourierId] = useState(INITIAL_MENSAJEROS[0].id);
