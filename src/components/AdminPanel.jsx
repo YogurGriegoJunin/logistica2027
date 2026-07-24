@@ -29,6 +29,7 @@ export default function AdminPanel({
   onCreateOrder,
   onCreateClient,
   onCreateCourier,
+  onDeleteCourier,
   onCreateProduct,
   onAssignCourier,
   onUpdateStatus
@@ -914,6 +915,7 @@ export default function AdminPanel({
                     <th>Efectivo en Mano</th>
                     <th>Comisión por Cobrar</th>
                     <th>Gastos</th>
+                    <th>Acción</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -947,6 +949,21 @@ export default function AdminPanel({
                       </td>
                       <td style={{ color: "var(--danger)" }}>
                         ${c.gastosAcumulados.toLocaleString()}
+                      </td>
+                      <td>
+                        <button
+                          type="button"
+                          className="btn btn-danger"
+                          style={{ padding: "0.25rem 0.5rem" }}
+                          onClick={() => {
+                            if (window.confirm(`¿Seguro que deseas eliminar al repartidor ${c.nombre}?`)) {
+                              onDeleteCourier(c.id);
+                            }
+                          }}
+                          title="Eliminar repartidor"
+                        >
+                          <Trash2 size={13} />
+                        </button>
                       </td>
                     </tr>
                   ))}

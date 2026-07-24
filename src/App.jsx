@@ -70,6 +70,10 @@ export default function App() {
     setCouriers((prev) => [...prev, courier]);
   };
 
+  const handleDeleteCourier = (courierId) => {
+    setCouriers((prev) => prev.filter((c) => c.id !== courierId));
+  };
+
   // 0c. Create a new product (artículo de catálogo)
   const handleCreateProduct = (newProduct) => {
     const productId = `p-${Date.now().toString().slice(-4)}`;
@@ -358,6 +362,7 @@ export default function App() {
             onCreateOrder={handleCreateOrder}
             onCreateClient={handleCreateClient}
             onCreateCourier={handleCreateCourier}
+            onDeleteCourier={handleDeleteCourier}
             onCreateProduct={handleCreateProduct}
             onAssignCourier={handleAssignCourier}
             onUpdateStatus={handleUpdateStatus}
