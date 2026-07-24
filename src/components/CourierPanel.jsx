@@ -48,32 +48,37 @@ export default function CourierPanel({
     setPinSuccessMsg("");
     setPinErrorMsg("");
 
-    const oldHash = await hashPassword(oldPin);
-    if (oldHash !== selectedCourier.pinHash) {
-      setPinErrorMsg("El PIN actual es incorrecto.");
-      return;
+    try {
+      const oldHash = await hashPassword(oldPin);
+      if (oldHash !== selectedCourier.pinHash) {
+        setPinErrorMsg("El PIN actual es incorrecto.");
+        return;
+      }
+
+      if (newPin !== confirmPin) {
+        setPinErrorMsg("El nuevo PIN y la confirmación no coinciden.");
+        return;
+      }
+
+      if (newPin.length !== 4) {
+        setPinErrorMsg("El PIN debe tener exactamente 4 dígitos.");
+        return;
+      }
+
+      const newPinHash = await hashPassword(newPin);
+      onChangePin(selectedCourier.id, newPinHash);
+      setPinSuccessMsg("PIN actualizado con éxito.");
+      setOldPin("");
+      setNewPin("");
+      setConfirmPin("");
+
+      setTimeout(() => {
+        setPinSuccessMsg("");
+      }, 4000);
+    } catch (err) {
+      console.error(err);
+      setPinErrorMsg("Error al actualizar el PIN.");
     }
-
-    if (newPin !== confirmPin) {
-      setPinErrorMsg("El nuevo PIN y la confirmación no coinciden.");
-      return;
-    }
-
-    if (newPin.length !== 4) {
-      setPinErrorMsg("El PIN debe tener exactamente 4 dígitos.");
-      return;
-    }
-
-    const newPinHash = await hashPassword(newPin);
-    onChangePin(selectedCourier.id, newPinHash);
-    setPinSuccessMsg("PIN actualizado con éxito.");
-    setOldPin("");
-    setNewPin("");
-    setConfirmPin("");
-
-    setTimeout(() => {
-      setPinSuccessMsg("");
-    }, 4000);
   };
 
   // Find orders assigned to this courier that are active (pending or en_camino)

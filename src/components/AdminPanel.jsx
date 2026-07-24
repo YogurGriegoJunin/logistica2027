@@ -253,32 +253,37 @@ export default function AdminPanel({
     setPassSuccessMsg("");
     setPassErrorMsg("");
 
-    const oldHash = await hashPassword(oldPass);
-    if (oldHash !== adminPasswordHash) {
-      setPassErrorMsg("La contraseña actual es incorrecta.");
-      return;
+    try {
+      const oldHash = await hashPassword(oldPass);
+      if (oldHash !== adminPasswordHash) {
+        setPassErrorMsg("La contraseña actual es incorrecta.");
+        return;
+      }
+
+      if (newPass !== confirmPass) {
+        setPassErrorMsg("La nueva contraseña y la confirmación no coinciden.");
+        return;
+      }
+
+      if (newPass.length < 4) {
+        setPassErrorMsg("La contraseña debe tener al menos 4 caracteres.");
+        return;
+      }
+
+      const newHash = await hashPassword(newPass);
+      setAdminPasswordHash(newHash);
+      setPassSuccessMsg("Contraseña de administrador actualizada con éxito.");
+      setOldPass("");
+      setNewPass("");
+      setConfirmPass("");
+
+      setTimeout(() => {
+        setPassSuccessMsg("");
+      }, 5000);
+    } catch (err) {
+      console.error(err);
+      setPassErrorMsg("Error al procesar el cambio de contraseña.");
     }
-
-    if (newPass !== confirmPass) {
-      setPassErrorMsg("La nueva contraseña y la confirmación no coinciden.");
-      return;
-    }
-
-    if (newPass.length < 4) {
-      setPassErrorMsg("La contraseña debe tener al menos 4 caracteres.");
-      return;
-    }
-
-    const newHash = await hashPassword(newPass);
-    setAdminPasswordHash(newHash);
-    setPassSuccessMsg("Contraseña de administrador actualizada con éxito.");
-    setOldPass("");
-    setNewPass("");
-    setConfirmPass("");
-
-    setTimeout(() => {
-      setPassSuccessMsg("");
-    }, 5000);
   };
 
   return (
