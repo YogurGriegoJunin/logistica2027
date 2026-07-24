@@ -125,6 +125,10 @@ export default function App() {
     setClients((prev) => [...prev, client]);
   };
 
+  const handleDeleteClient = (clientId) => {
+    setClients((prev) => prev.filter((c) => c.id !== clientId));
+  };
+
   // 0b. Create a new courier (repartidor)
   const handleCreateCourier = (newCourier) => {
     const courierId = `m-${Date.now().toString().slice(-4)}`;
@@ -156,6 +160,10 @@ export default function App() {
       ...newProduct
     };
     setProducts((prev) => [...prev, product]);
+  };
+
+  const handleDeleteProduct = (productId) => {
+    setProducts((prev) => prev.filter((p) => p.id !== productId));
   };
 
   // 1. Create a new delivery order
@@ -435,9 +443,11 @@ export default function App() {
             setAdminPasswordHash={setAdminPasswordHash}
             onCreateOrder={handleCreateOrder}
             onCreateClient={handleCreateClient}
+            onDeleteClient={handleDeleteClient}
             onCreateCourier={handleCreateCourier}
             onDeleteCourier={handleDeleteCourier}
             onCreateProduct={handleCreateProduct}
+            onDeleteProduct={handleDeleteProduct}
             onAssignCourier={handleAssignCourier}
             onUpdateStatus={handleUpdateStatus}
           />

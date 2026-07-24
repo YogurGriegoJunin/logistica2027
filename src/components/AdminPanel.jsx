@@ -29,9 +29,11 @@ export default function AdminPanel({
   setAdminPasswordHash,
   onCreateOrder,
   onCreateClient,
+  onDeleteClient,
   onCreateCourier,
   onDeleteCourier,
   onCreateProduct,
+  onDeleteProduct,
   onAssignCourier,
   onUpdateStatus
 }) {
@@ -761,12 +763,13 @@ export default function AdminPanel({
                     <th>Dirección</th>
                     <th>Teléfono</th>
                     <th>Repartos Totales</th>
+                    <th>Acción</th>
                   </tr>
                 </thead>
                 <tbody>
                   {clients.length === 0 ? (
                     <tr>
-                      <td colSpan="5" style={{ textAlign: "center", color: "var(--text-dark)", padding: "2rem" }}>
+                      <td colSpan="6" style={{ textAlign: "center", color: "var(--text-dark)", padding: "2rem" }}>
                         No hay clientes registrados en el directorio.
                       </td>
                     </tr>
@@ -799,11 +802,26 @@ export default function AdminPanel({
                                 {completedOrdersCount} Entregados
                               </span>
                               {activeOrdersCount > 0 && (
-                                <span className="badge badge-camino" style={{ padding: "0.15rem 0.4rem", fontSize: "0.68rem" }}>
-                                  {activeOrdersCount} Activos
+                                <span className="badge badge-reparto" style={{ fontSize: "0.65rem" }}>
+                                  {activeOrdersCount} activo
                                 </span>
                               )}
                             </div>
+                          </td>
+                          <td>
+                            <button
+                              type="button"
+                              className="btn btn-danger"
+                              style={{ padding: "0.25rem 0.5rem" }}
+                              onClick={() => {
+                                if (window.confirm(`¿Seguro que deseas eliminar al cliente ${client.nombre}?`)) {
+                                  onDeleteClient(client.id);
+                                }
+                              }}
+                              title="Eliminar cliente"
+                            >
+                              <Trash2 size={13} />
+                            </button>
                           </td>
                         </tr>
                       );
@@ -1049,12 +1067,13 @@ export default function AdminPanel({
                     <th>Precio de Venta</th>
                     <th>Unidades Vendidas</th>
                     <th>Ingresos Generados</th>
+                    <th>Acción</th>
                   </tr>
                 </thead>
                 <tbody>
                   {products.length === 0 ? (
                     <tr>
-                      <td colSpan="5" style={{ textAlign: "center", color: "var(--text-dark)", padding: "2rem" }}>
+                      <td colSpan="6" style={{ textAlign: "center", color: "var(--text-dark)", padding: "2rem" }}>
                         Catálogo de productos vacío. Registra uno a la izquierda.
                       </td>
                     </tr>
@@ -1085,6 +1104,21 @@ export default function AdminPanel({
                           </td>
                           <td style={{ fontWeight: "700", color: totalRevenue > 0 ? "var(--primary-hover)" : "var(--text-dark)" }}>
                             ${totalRevenue.toLocaleString()}
+                          </td>
+                          <td>
+                            <button
+                              type="button"
+                              className="btn btn-danger"
+                              style={{ padding: "0.25rem 0.5rem" }}
+                              onClick={() => {
+                                if (window.confirm(`¿Seguro que deseas eliminar el producto ${p.nombre}?`)) {
+                                  onDeleteProduct(p.id);
+                                }
+                              }}
+                              title="Eliminar producto"
+                            >
+                              <Trash2 size={13} />
+                            </button>
                           </td>
                         </tr>
                       );
