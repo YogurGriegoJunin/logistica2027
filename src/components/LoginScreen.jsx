@@ -1,7 +1,8 @@
 import React, { useState } from "react";
 import { Shield, Truck, ChevronRight, Key, ArrowLeft, AlertCircle } from "lucide-react";
+import { hashPassword } from "../utils/security";
 
-export default function LoginScreen({ couriers, adminPassword, onLogin }) {
+export default function LoginScreen({ couriers, adminPasswordHash, onLogin }) {
   // States: 'select-role' | 'admin-password' | 'select-courier' | 'courier-pin'
   const [view, setView] = useState("select-role");
   
@@ -15,12 +16,12 @@ export default function LoginScreen({ couriers, adminPassword, onLogin }) {
   // Error handling
   const [errorMsg, setErrorMsg] = useState("");
 
-  const handleAdminSubmit = (e) => {
+  const handleAdminSubmit = async (e) => {
     e.preventDefault();
     setErrorMsg("");
     
-    // Check against current admin password
-    if (adminPass === adminPassword) {
+    const enteredHash = await hashPassword(adminPass);
+    if (enteredHash === adminPasswordHash) {
       onLogin("admin");
     } else {
       setErrorMsg("Contraseña de administrador incorrecta.");
@@ -35,14 +36,14 @@ export default function LoginScreen({ couriers, adminPassword, onLogin }) {
     setView("courier-pin");
   };
 
-  const handleCourierSubmit = (e) => {
+  const handleCourierSubmit = async (e) => {
     e.preventDefault();
     setErrorMsg("");
 
     if (!selectedCourier) return;
 
-    // Validate PIN
-    if (courierPin === selectedCourier.pin) {
+    const enteredHash = await hashPassword(courierPin);
+    if (enteredHash === selectedCourier.pinHash) {
       onLogin("courier", selectedCourier.id);
     } else {
       setErrorMsg("PIN incorrecto. Revisa e intenta de nuevo.");
@@ -143,7 +144,6 @@ export default function LoginScreen({ couriers, adminPassword, onLogin }) {
                   autoFocus
                   required
                 />
-                <span style={styles.hintText}>Pista: la contraseña actual es <code>{adminPassword}</code></span>
               </div>
 
               <button type="submit" className="btn btn-primary" style={{ width: "100%", gap: "0.5rem" }}>
@@ -232,7 +232,6 @@ export default function LoginScreen({ couriers, adminPassword, onLogin }) {
                   autoFocus
                   required
                 />
-                <span style={styles.hintText}>Pista: PIN por defecto de {selectedCourier.nombre.split(" ")[0]} es <code>{selectedCourier.pin}</code></span>
               </div>
 
               <button type="submit" className="btn btn-success" style={{ width: "100%", gap: "0.5rem" }}>

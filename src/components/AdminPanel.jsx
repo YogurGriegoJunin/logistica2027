@@ -18,14 +18,15 @@ import {
   CheckCircle,
   AlertCircle
 } from "lucide-react";
+import { hashPassword } from "../utils/security";
 
 export default function AdminPanel({
   orders,
   couriers,
   clients = [],
   products = [],
-  adminPassword,
-  setAdminPassword,
+  adminPasswordHash,
+  setAdminPasswordHash,
   onCreateOrder,
   onCreateClient,
   onCreateCourier,
@@ -215,15 +216,17 @@ export default function AdminPanel({
     setNuevoTelefono("");
   };
 
-  const handleCourierSubmit = (e) => {
+  const handleCourierSubmit = async (e) => {
     e.preventDefault();
     if (!courierNombre || !courierAvatar || !courierColor || !courierPinVal) return;
+
+    const pinHash = await hashPassword(courierPinVal);
 
     onCreateCourier({
       nombre: courierNombre,
       avatar: courierAvatar.toUpperCase().slice(0, 2),
       color: courierColor,
-      pin: courierPinVal
+      pinHash
     });
 
     setCourierNombre("");
@@ -245,12 +248,13 @@ export default function AdminPanel({
     setProductoPrecio("");
   };
 
-  const handleUpdateAdminPass = (e) => {
+  const handleUpdateAdminPass = async (e) => {
     e.preventDefault();
     setPassSuccessMsg("");
     setPassErrorMsg("");
 
-    if (oldPass !== adminPassword) {
+    const oldHash = await hashPassword(oldPass);
+    if (oldHash !== adminPasswordHash) {
       setPassErrorMsg("La contraseña actual es incorrecta.");
       return;
     }
@@ -265,7 +269,8 @@ export default function AdminPanel({
       return;
     }
 
-    setAdminPassword(newPass);
+    const newHash = await hashPassword(newPass);
+    setAdminPasswordHash(newHash);
     setPassSuccessMsg("Contraseña de administrador actualizada con éxito.");
     setOldPass("");
     setNewPass("");
@@ -933,8 +938,8 @@ export default function AdminPanel({
                         <div style={{ fontWeight: "600" }}>{c.nombre}</div>
                         <div style={{ fontSize: "0.75rem", color: "var(--text-dark)" }}>ID: {c.id}</div>
                       </td>
-                      <td style={{ fontFamily: "monospace", fontSize: "0.9rem", color: "var(--warning)" }}>
-                        {c.pin || "1234"}
+                      <td style={{ fontFamily: "monospace", fontSize: "0.85rem", color: "var(--success)", fontWeight: "600" }}>
+                        •••• Cifrado
                       </td>
                       <td>
                         <span className={`badge badge-${c.estado}`}>

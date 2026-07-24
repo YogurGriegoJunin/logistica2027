@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { Wallet, Fuel, CheckCircle, Navigation, Play, User, RefreshCw } from "lucide-react";
+import { hashPassword } from "../utils/security";
 
 export default function CourierPanel({
   selectedCourier,
@@ -42,12 +43,13 @@ export default function CourierPanel({
     setExpenseDesc("");
   };
 
-  const handleUpdatePin = (e) => {
+  const handleUpdatePin = async (e) => {
     e.preventDefault();
     setPinSuccessMsg("");
     setPinErrorMsg("");
 
-    if (oldPin !== selectedCourier.pin) {
+    const oldHash = await hashPassword(oldPin);
+    if (oldHash !== selectedCourier.pinHash) {
       setPinErrorMsg("El PIN actual es incorrecto.");
       return;
     }
@@ -62,7 +64,8 @@ export default function CourierPanel({
       return;
     }
 
-    onChangePin(selectedCourier.id, newPin);
+    const newPinHash = await hashPassword(newPin);
+    onChangePin(selectedCourier.id, newPinHash);
     setPinSuccessMsg("PIN actualizado con éxito.");
     setOldPin("");
     setNewPin("");

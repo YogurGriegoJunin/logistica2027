@@ -56,7 +56,7 @@ export const INITIAL_MENSAJEROS = [
     color: "#8B5CF6", // Violeta
     lat: 40.416775,
     lng: -3.703790,
-    pin: "1111"
+    pinHash: "0ee1289fe47095272532289f0932b32b4965b5719255b48b9f0260336d39cb60"
   },
   {
     id: "m2",
@@ -69,7 +69,7 @@ export const INITIAL_MENSAJEROS = [
     color: "#EC4899", // Rosa
     lat: 40.420000,
     lng: -3.695000,
-    pin: "2222"
+    pinHash: "edee29f882543b956620b26d0ee0e7e9503ab296571dd239121a979101c70e00"
   },
   {
     id: "m3",
@@ -82,7 +82,7 @@ export const INITIAL_MENSAJEROS = [
     color: "#10B981", // Verde esmeralda
     lat: 40.410000,
     lng: -3.712000,
-    pin: "3333"
+    pinHash: "110c732049d5a7d656fb154b5dfd4f6c4bb6ed61f5139a0ef4a6c67ef8ec651b"
   }
 ];
 

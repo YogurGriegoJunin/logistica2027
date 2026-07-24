@@ -15,9 +15,11 @@ import {
   TIENDA_BASE
 } from "./utils/mockData";
 
+import { DEFAULT_ADMIN_HASH } from "./utils/security";
+
 export default function App() {
   const [userRole, setUserRole] = useState(null); // 'admin' | 'courier' | null
-  const [adminPassword, setAdminPassword] = useState("admin123");
+  const [adminPasswordHash, setAdminPasswordHash] = useState(DEFAULT_ADMIN_HASH);
   const [activeTab, setActiveTab] = useState("admin");
   const [couriers, setCouriers] = useState(INITIAL_MENSAJEROS);
   const [clients, setClients] = useState(INITIAL_CLIENTES);
@@ -59,7 +61,7 @@ export default function App() {
       nombre: newCourier.nombre,
       avatar: newCourier.avatar,
       color: newCourier.color,
-      pin: newCourier.pin || "1234",
+      pinHash: newCourier.pinHash,
       estado: "libre",
       comisionAcumulada: 0,
       efectivoEnMano: 0,
@@ -317,9 +319,9 @@ export default function App() {
     setUserRole(null);
   };
 
-  const handleChangeCourierPin = (courierId, newPin) => {
+  const handleChangeCourierPin = (courierId, newPinHash) => {
     setCouriers((prev) =>
-      prev.map((c) => (c.id === courierId ? { ...c, pin: newPin } : c))
+      prev.map((c) => (c.id === courierId ? { ...c, pinHash: newPinHash } : c))
     );
   };
 
@@ -327,7 +329,7 @@ export default function App() {
     return (
       <LoginScreen
         couriers={couriers}
-        adminPassword={adminPassword}
+        adminPasswordHash={adminPasswordHash}
         onLogin={handleLogin}
       />
     );
@@ -357,8 +359,8 @@ export default function App() {
             couriers={couriers}
             clients={clients}
             products={products}
-            adminPassword={adminPassword}
-            setAdminPassword={setAdminPassword}
+            adminPasswordHash={adminPasswordHash}
+            setAdminPasswordHash={setAdminPasswordHash}
             onCreateOrder={handleCreateOrder}
             onCreateClient={handleCreateClient}
             onCreateCourier={handleCreateCourier}
