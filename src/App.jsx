@@ -568,6 +568,8 @@ export default function App() {
         couriers={couriers}
         adminPasswordHash={adminPasswordHash}
         onLogin={handleLogin}
+        storeBase={storeBase}
+        onUpdateStoreBase={handleUpdateStoreBase}
       />
     );
   }

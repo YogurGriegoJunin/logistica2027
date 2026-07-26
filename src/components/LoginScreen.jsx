@@ -1,9 +1,9 @@
 import React, { useState } from "react";
-import { Shield, Truck, ChevronRight, Key, ArrowLeft, AlertCircle } from "lucide-react";
+import { Shield, Truck, ChevronRight, Key, ArrowLeft, AlertCircle, Building, CheckCircle, Sparkles, MapPin, DollarSign, Cloud, Download } from "lucide-react";
 import { hashPassword } from "../utils/security";
 
-export default function LoginScreen({ couriers, adminPasswordHash, onLogin }) {
-  // States: 'select-role' | 'admin-password' | 'select-courier' | 'courier-pin'
+export default function LoginScreen({ couriers, adminPasswordHash, onLogin, storeBase, onUpdateStoreBase }) {
+  // States: 'select-role' | 'admin-password' | 'select-courier' | 'courier-pin' | 'commercial-info' | 'new-business'
   const [view, setView] = useState("select-role");
   
   // Selected courier state for PIN entry
@@ -12,6 +12,12 @@ export default function LoginScreen({ couriers, adminPasswordHash, onLogin }) {
   // Passcode values
   const [adminPass, setAdminPass] = useState("");
   const [courierPin, setCourierPin] = useState("");
+  
+  // New Business registration states
+  const [newBizName, setNewBizName] = useState("");
+  const [newBizAddress, setNewBizAddress] = useState("");
+  const [newBizPass, setNewBizPass] = useState("");
+  const [bizSuccessMsg, setBizSuccessMsg] = useState("");
   
   // Error handling
   const [errorMsg, setErrorMsg] = useState("");
@@ -51,9 +57,37 @@ export default function LoginScreen({ couriers, adminPasswordHash, onLogin }) {
     }
   };
 
+  const handleCreateBusiness = async (e) => {
+    e.preventDefault();
+    if (!newBizName.trim() || !newBizPass) return;
+
+    // Create a new Cloud Sync ID for this business
+    const bizCloudId = `biz_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`;
+    localStorage.setItem("rapiconta_cloud_sync_id", bizCloudId);
+
+    const newHash = await hashPassword(newBizPass);
+    localStorage.setItem("rapiconta_admin_pass_hash", newHash);
+
+    const newBase = {
+      nombre: newBizName.trim(),
+      direccion: newBizAddress.trim() || "Base Central",
+      lat: -34.5833,
+      lng: -60.9500
+    };
+
+    if (onUpdateStoreBase) {
+      onUpdateStoreBase(newBase);
+    }
+
+    setBizSuccessMsg(`¡Negocio "${newBizName.trim()}" registrado con éxito! Redirigiendo...`);
+    setTimeout(() => {
+      window.location.reload();
+    }, 1500);
+  };
+
   const goBack = () => {
     setErrorMsg("");
-    if (view === "admin-password" || view === "select-courier") {
+    if (view === "admin-password" || view === "select-courier" || view === "commercial-info" || view === "new-business") {
       setView("select-role");
     } else if (view === "courier-pin") {
       setView("select-courier");
@@ -70,8 +104,8 @@ export default function LoginScreen({ couriers, adminPasswordHash, onLogin }) {
             <Truck size={28} color="#fff" />
           </div>
           <div>
-            <h1 style={styles.brandTitle}>RapiConta Express</h1>
-            <p style={styles.brandSubtitle}>Portal de Acceso Logístico</p>
+            <h1 style={styles.brandTitle}>{storeBase?.nombre || "RapiConta Express"}</h1>
+            <p style={styles.brandSubtitle}>Plataforma de Gestión de Repartos & Flota</p>
           </div>
         </div>
 
@@ -99,7 +133,7 @@ export default function LoginScreen({ couriers, adminPasswordHash, onLogin }) {
                 </div>
                 <div style={styles.roleMeta}>
                   <h4 style={styles.roleTitle}>Portal Administrativo</h4>
-                  <p style={styles.roleDesc}>Despacho de pedidos, catálogo de productos y contabilidad general de tienda.</p>
+                  <p style={styles.roleDesc}>Despacho de pedidos, catálogo de productos, GPS de flota y contabilidad.</p>
                 </div>
                 <ChevronRight size={20} color="var(--text-dark)" />
               </div>
@@ -110,15 +144,47 @@ export default function LoginScreen({ couriers, adminPasswordHash, onLogin }) {
                 onClick={() => { setView("select-courier"); setErrorMsg(""); }}
                 className="role-card-hover"
               >
-                <div style={{ ...styles.roleIconBox, background: "rgba(236, 72, 153, 0.15)" }}>
+                <div style={{ ...styles.roleIconBox, background: "rgba(59, 130, 246, 0.15)" }}>
                   <Truck size={32} color="var(--secondary)" />
                 </div>
                 <div style={styles.roleMeta}>
-                  <h4 style={styles.roleTitle}>Portal de Repartidores</h4>
-                  <p style={styles.roleDesc}>Lista de entregas personales, comisiones ganadas y registro de gastos de viaje.</p>
+                  <h4 style={styles.roleTitle}>Dispositivo de Repartidor</h4>
+                  <p style={styles.roleDesc}>Ingreso con PIN móvil para iniciar viajes, ver mapas y marcar entregas.</p>
                 </div>
                 <ChevronRight size={20} color="var(--text-dark)" />
               </div>
+            </div>
+
+            {/* B2B Commercial & Multi-Store Buttons */}
+            <div style={{ display: "flex", flexDirection: "column", gap: "0.5rem", marginTop: "1.25rem", borderTop: "1px solid var(--border-color)", paddingTop: "1rem" }}>
+              <button
+                type="button"
+                className="btn btn-secondary"
+                style={{ width: "100%", gap: "0.5rem", justifyContent: "center", fontSize: "0.85rem" }}
+                onClick={() => setView("new-business")}
+              >
+                <Building size={16} color="var(--primary)" />
+                🏢 Registrar Nuevo Negocio / Empresa
+              </button>
+
+              <button
+                type="button"
+                className="btn"
+                style={{
+                  width: "100%",
+                  gap: "0.5rem",
+                  justifyContent: "center",
+                  fontSize: "0.82rem",
+                  background: "rgba(245, 158, 11, 0.12)",
+                  border: "1px solid rgba(245, 158, 11, 0.3)",
+                  color: "#FBBF24",
+                  fontWeight: "600"
+                }}
+                onClick={() => setView("commercial-info")}
+              >
+                <Sparkles size={16} />
+                💼 Ver Presentación y Beneficios para Negocios
+              </button>
             </div>
           </div>
         )}
@@ -239,6 +305,125 @@ export default function LoginScreen({ couriers, adminPasswordHash, onLogin }) {
                 Ingresar al Panel
               </button>
             </form>
+          </div>
+        )}
+
+        {/* Registrar Nuevo Negocio / Empresa */}
+        {view === "new-business" && (
+          <div style={styles.content} className="animated-fade-in">
+            <div style={styles.challengeHeader}>
+              <button style={styles.backArrowBtn} onClick={goBack}>
+                <ArrowLeft size={18} />
+              </button>
+              <h3 style={{ ...styles.title, marginBottom: 0 }}>Registrar Nuevo Negocio / Empresa</h3>
+            </div>
+            <p style={styles.subtitle}>Crea tu propio sistema de despacho de pedidos para tu flota de repartidores:</p>
+
+            {bizSuccessMsg ? (
+              <div style={{ ...styles.errorAlert, background: "var(--success-bg)", borderColor: "rgba(16, 185, 129, 0.3)", color: "var(--success)", margin: "1.5rem 0" }}>
+                <CheckCircle size={18} />
+                <span>{bizSuccessMsg}</span>
+              </div>
+            ) : (
+              <form onSubmit={handleCreateBusiness} style={styles.passForm}>
+                <div className="form-group" style={{ textAlign: "left" }}>
+                  <label>Nombre de tu Empresa / Negocio</label>
+                  <input
+                    type="text"
+                    className="input-field"
+                    placeholder="Ej. Pizzería Don Benito / Delivery Express"
+                    value={newBizName}
+                    onChange={(e) => setNewBizName(e.target.value)}
+                    autoFocus
+                    required
+                  />
+                </div>
+
+                <div className="form-group" style={{ textAlign: "left" }}>
+                  <label>Dirección de la Base Central</label>
+                  <input
+                    type="text"
+                    className="input-field"
+                    placeholder="Ej. Av. San Martín 150, Ciudad"
+                    value={newBizAddress}
+                    onChange={(e) => setNewBizAddress(e.target.value)}
+                  />
+                </div>
+
+                <div className="form-group" style={{ textAlign: "left" }}>
+                  <label>Crear Contraseña de Administrador</label>
+                  <input
+                    type="password"
+                    className="input-field"
+                    placeholder="Crea tu clave secreta de admin..."
+                    value={newBizPass}
+                    onChange={(e) => setNewBizPass(e.target.value)}
+                    required
+                  />
+                </div>
+
+                <button type="submit" className="btn btn-primary" style={{ width: "100%", gap: "0.5rem" }}>
+                  <Building size={16} />
+                  Crear e Inicializar Mi Sistema de Repartos
+                </button>
+              </form>
+            )}
+          </div>
+        )}
+
+        {/* Presentación Comercial B2B */}
+        {view === "commercial-info" && (
+          <div style={styles.content} className="animated-fade-in">
+            <div style={styles.challengeHeader}>
+              <button style={styles.backArrowBtn} onClick={goBack}>
+                <ArrowLeft size={18} />
+              </button>
+              <h3 style={{ ...styles.title, marginBottom: 0 }}>Plataforma B2B para Negocios</h3>
+            </div>
+            
+            <div style={{ display: "flex", flexDirection: "column", gap: "0.65rem", margin: "1rem 0", textAlign: "left", fontSize: "0.85rem" }}>
+              <div style={{ background: "rgba(255,255,255,0.03)", padding: "0.75rem", borderRadius: "10px", border: "1px solid var(--border-color)", display: "flex", gap: "0.6rem" }}>
+                <MapPin size={20} color="var(--primary)" style={{ minWidth: "20px" }} />
+                <div>
+                  <strong style={{ color: "#fff" }}>Rutas y Navegación GPS Google Maps</strong>
+                  <p style={{ margin: 0, color: "var(--text-muted)", fontSize: "0.78rem" }}>Guía paso a paso desde el local del negocio hacia cada cliente.</p>
+                </div>
+              </div>
+
+              <div style={{ background: "rgba(255,255,255,0.03)", padding: "0.75rem", borderRadius: "10px", border: "1px solid var(--border-color)", display: "flex", gap: "0.6rem" }}>
+                <Truck size={20} color="var(--secondary)" style={{ minWidth: "20px" }} />
+                <div>
+                  <strong style={{ color: "#fff" }}>App Móvil con PIN para Mensajeros</strong>
+                  <p style={{ margin: 0, color: "var(--text-muted)", fontSize: "0.78rem" }}>Tus repartidores ingresan con su PIN propio sin revelar claves administrativas.</p>
+                </div>
+              </div>
+
+              <div style={{ background: "rgba(255,255,255,0.03)", padding: "0.75rem", borderRadius: "10px", border: "1px solid var(--border-color)", display: "flex", gap: "0.6rem" }}>
+                <DollarSign size={20} color="var(--success)" style={{ minWidth: "20px" }} />
+                <div>
+                  <strong style={{ color: "#fff" }}>Control Financiero & Rendición de Efectivo</strong>
+                  <p style={{ margin: 0, color: "var(--text-muted)", fontSize: "0.78rem" }}>Auditoría contable automática de comisiones y dinero cobrado en mano.</p>
+                </div>
+              </div>
+
+              <div style={{ background: "rgba(255,255,255,0.03)", padding: "0.75rem", borderRadius: "10px", border: "1px solid var(--border-color)", display: "flex", gap: "0.6rem" }}>
+                <Cloud size={20} color="#60A5FA" style={{ minWidth: "20px" }} />
+                <div>
+                  <strong style={{ color: "#fff" }}>Sincronización Multidispositivo en Tiempo Real</strong>
+                  <p style={{ margin: 0, color: "var(--text-muted)", fontSize: "0.78rem" }}>La PC del local y los teléfonos en la calle están conectados por la nube 24/7.</p>
+                </div>
+              </div>
+            </div>
+
+            <button
+              type="button"
+              className="btn btn-primary"
+              style={{ width: "100%", gap: "0.5rem" }}
+              onClick={() => setView("new-business")}
+            >
+              <Building size={16} />
+              Probar / Registrar Mi Negocio Ahora
+            </button>
           </div>
         )}
       </div>
