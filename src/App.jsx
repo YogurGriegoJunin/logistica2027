@@ -92,6 +92,22 @@ export default function App() {
     return INITIAL_TRANSACCIONES;
   });
 
+  const [storeBase, setStoreBase] = useState(() => {
+    try {
+      const saved = localStorage.getItem("rapiconta_store_base");
+      if (saved) return JSON.parse(saved);
+    } catch (e) {}
+    return TIENDA_BASE;
+  });
+
+  const handleUpdateStoreBase = (newBase) => {
+    setStoreBase(newBase);
+    try {
+      localStorage.setItem("rapiconta_store_base", JSON.stringify(newBase));
+    } catch (e) {}
+    triggerCloudPush({ storeBase: newBase });
+  };
+
   // Cloud Sync state
   const [cloudSyncId] = useState(() => {
     return localStorage.getItem("rapiconta_cloud_sync_id") || DEFAULT_CLOUD_BLOB_ID;
@@ -110,6 +126,7 @@ export default function App() {
       if (cloudData.updatedAt && cloudData.updatedAt !== lastCloudUpdatedAtRef.current) {
         lastCloudUpdatedAtRef.current = cloudData.updatedAt;
 
+        if (cloudData.storeBase) setStoreBase(cloudData.storeBase);
         if (cloudData.adminPasswordHash) setAdminPasswordHash(cloudData.adminPasswordHash);
         if (Array.isArray(cloudData.couriers) && cloudData.couriers.length > 0) setCouriers(cloudData.couriers);
         if (Array.isArray(cloudData.clients) && cloudData.clients.length > 0) setClients(cloudData.clients);
@@ -131,6 +148,7 @@ export default function App() {
   const triggerCloudPush = async (overrideState = {}) => {
     setIsCloudSyncing(true);
     const storePayload = {
+      storeBase: overrideState.storeBase || storeBase,
       adminPasswordHash: overrideState.adminPasswordHash || adminPasswordHash,
       couriers: overrideState.couriers || couriers,
       clients: overrideState.clients || clients,
@@ -572,6 +590,7 @@ export default function App() {
           couriers={couriers}
           orders={orders}
           setCouriers={setCouriers}
+          storeBase={storeBase}
         />
 
         {userRole === "admin" && activeTab === "admin" && (
@@ -583,6 +602,8 @@ export default function App() {
             transactions={transactions}
             adminPasswordHash={adminPasswordHash}
             setAdminPasswordHash={setAdminPasswordHash}
+            storeBase={storeBase}
+            onUpdateStoreBase={handleUpdateStoreBase}
             onRestoreBackup={handleRestoreBackup}
             onResetFactory={handleResetFactory}
             onCreateOrder={handleCreateOrder}
@@ -601,6 +622,7 @@ export default function App() {
           <CourierPanel
             selectedCourier={selectedCourier}
             orders={orders}
+            storeBase={storeBase}
             onUpdateStatus={handleUpdateStatus}
             onAddExpense={handleAddExpense}
             onChangePin={handleChangeCourierPin}

@@ -31,6 +31,8 @@ export default function AdminPanel({
   transactions = [],
   adminPasswordHash,
   setAdminPasswordHash,
+  storeBase,
+  onUpdateStoreBase,
   onRestoreBackup,
   onResetFactory,
   onCreateOrder,
@@ -43,7 +45,14 @@ export default function AdminPanel({
   onAssignCourier,
   onUpdateStatus
 }) {
-  const [adminView, setAdminView] = useState("deliveries"); // 'deliveries' | 'clients' | 'couriers' | 'products'
+  const [adminView, setAdminView] = useState("deliveries"); // 'deliveries' | 'clients' | 'couriers' | 'products' | 'settings'
+
+  // --- Base Location State ---
+  const [baseNombre, setBaseNombre] = useState(storeBase?.nombre || "Yogur Griego Junín - Base Central");
+  const [baseDireccion, setBaseDireccion] = useState(storeBase?.direccion || "Base Central de Despacho");
+  const [baseLat, setBaseLat] = useState(storeBase?.lat ? storeBase.lat.toString() : "-34.5833");
+  const [baseLng, setBaseLng] = useState(storeBase?.lng ? storeBase.lng.toString() : "-60.9500");
+  const [baseMsg, setBaseMsg] = useState("");
 
   // --- Order Form State ---
   const [selectedClientId, setSelectedClientId] = useState("");
@@ -201,8 +210,8 @@ export default function AdminPanel({
     }
 
     if (!lat || !lng) {
-      const centerLat = 40.416775;
-      const centerLng = -3.703790;
+      const centerLat = storeBase?.lat || -34.5833;
+      const centerLng = storeBase?.lng || -60.9500;
       lat = centerLat + (Math.random() - 0.5) * 0.035;
       lng = centerLng + (Math.random() - 0.5) * 0.035;
     }
@@ -237,8 +246,8 @@ export default function AdminPanel({
     e.preventDefault();
     if (!nuevoNombre.trim() || !nuevaDireccion.trim()) return;
 
-    const centerLat = 40.416775;
-    const centerLng = -3.703790;
+    const centerLat = storeBase?.lat || -34.5833;
+    const centerLng = storeBase?.lng || -60.9500;
     const lat = centerLat + (Math.random() - 0.5) * 0.035;
     const lng = centerLng + (Math.random() - 0.5) * 0.035;
 
@@ -340,6 +349,38 @@ export default function AdminPanel({
     }
   };
 
+  const handleStoreBaseSubmit = (e) => {
+    e.preventDefault();
+    const latNum = parseFloat(baseLat) || -34.5833;
+    const lngNum = parseFloat(baseLng) || -60.9500;
+
+    onUpdateStoreBase({
+      nombre: baseNombre.trim() || "Base Central de Despacho",
+      direccion: baseDireccion.trim() || "Base Central",
+      lat: latNum,
+      lng: lngNum
+    });
+
+    setBaseMsg("¡Ubicación de Base Central actualizada con éxito!");
+    setTimeout(() => setBaseMsg(""), 4000);
+  };
+
+  const handleCaptureGPS = () => {
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        (pos) => {
+          setBaseLat(pos.coords.latitude.toFixed(6));
+          setBaseLng(pos.coords.longitude.toFixed(6));
+          setBaseMsg("GPS capturado: " + pos.coords.latitude.toFixed(4) + ", " + pos.coords.longitude.toFixed(4));
+          setTimeout(() => setBaseMsg(""), 4000);
+        },
+        () => {
+          alert("No se pudo obtener el GPS actual. Ingresa las coordenadas manualmente.");
+        }
+      );
+    } else {
+      alert("Tu navegador no soporta geolocalización GPS.");
+    }
   const handleDownloadBackup = () => {
     const backupData = {
       version: "1.0",
@@ -1227,6 +1268,89 @@ export default function AdminPanel({
 
       {adminView === "settings" && (
         <div style={styles.grid} className="animated-fade-in">
+          {/* Configuración de Punto de Base Central */}
+          <div className="glass-card" style={styles.formCard}>
+            <div style={styles.cardHeader}>
+              <MapPin size={20} color="var(--primary)" />
+              <h2>Punto de Base Central (Origen de Salida)</h2>
+            </div>
+            <p style={{ fontSize: "0.85rem", color: "var(--text-muted)", marginBottom: "1rem" }}>
+              Define el punto exacto en Google Maps desde el cual parten todos los repartidores y pedidos.
+            </p>
+
+            {baseMsg && (
+              <div style={{ ...styles.infoAlert, background: "var(--success-bg)", borderColor: "rgba(16, 185, 129, 0.2)", marginBottom: "1rem" }}>
+                <CheckCircle size={16} style={{ color: "var(--success)" }} />
+                <span style={{ color: "var(--success)", fontSize: "0.85rem", fontWeight: "600" }}>{baseMsg}</span>
+              </div>
+            )}
+
+            <form onSubmit={handleStoreBaseSubmit} style={styles.form}>
+              <div className="form-group">
+                <label>Nombre del Local / Base</label>
+                <input
+                  type="text"
+                  className="input-field"
+                  placeholder="Ej. Yogur Griego Junín - Central"
+                  value={baseNombre}
+                  onChange={(e) => setBaseNombre(e.target.value)}
+                  required
+                />
+              </div>
+
+              <div className="form-group">
+                <label>Dirección Física de la Base</label>
+                <input
+                  type="text"
+                  className="input-field"
+                  placeholder="Ej. Av. San Martín 150, Junín"
+                  value={baseDireccion}
+                  onChange={(e) => setBaseDireccion(e.target.value)}
+                  required
+                />
+              </div>
+
+              <div style={{ display: "flex", gap: "0.5rem" }}>
+                <div className="form-group" style={{ flex: 1 }}>
+                  <label>Latitud GPS</label>
+                  <input
+                    type="text"
+                    className="input-field"
+                    placeholder="-34.5833"
+                    value={baseLat}
+                    onChange={(e) => setBaseLat(e.target.value)}
+                    required
+                  />
+                </div>
+                <div className="form-group" style={{ flex: 1 }}>
+                  <label>Longitud GPS</label>
+                  <input
+                    type="text"
+                    className="input-field"
+                    placeholder="-60.9500"
+                    value={baseLng}
+                    onChange={(e) => setBaseLng(e.target.value)}
+                    required
+                  />
+                </div>
+              </div>
+
+              <button
+                type="button"
+                className="btn btn-secondary"
+                style={{ width: "100%", gap: "0.5rem", justifyContent: "center" }}
+                onClick={handleCaptureGPS}
+              >
+                <MapPin size={16} color="var(--primary)" />
+                📍 Usar Mi Ubicación Actual (GPS)
+              </button>
+
+              <button type="submit" className="btn btn-primary" style={{ marginTop: "0.5rem", width: "100%", gap: "0.5rem" }}>
+                <CheckCircle size={16} />
+                Guardar Punto de Base Central
+              </button>
+            </form>
+          </div>
           {/* Cambiar Contraseña */}
           <div className="glass-card" style={styles.formCard}>
             <div style={styles.cardHeader}>
@@ -1343,6 +1467,7 @@ export default function AdminPanel({
       )}
     </div>
   );
+}
 }
 
 const styles = {

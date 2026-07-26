@@ -2,15 +2,17 @@ import React, { useEffect, useRef, useState } from "react";
 import { TIENDA_BASE } from "../utils/mockData";
 import { Navigation, MapPin, Store } from "lucide-react";
 
-export default function SimulatedMap({ couriers, orders, setCouriers }) {
+export default function SimulatedMap({ couriers, orders, setCouriers, storeBase }) {
   const canvasRef = useRef(null);
   const [hoveredEntity, setHoveredEntity] = useState(null);
 
-  // Map boundaries (Madrid central area coordinates)
-  const minLat = 40.405000;
-  const maxLat = 40.445000;
-  const minLng = -3.720000;
-  const maxLng = -3.680000;
+  const activeBase = storeBase || TIENDA_BASE;
+
+  // Dynamic Map boundaries centered around custom store base
+  const minLat = activeBase.lat - 0.02;
+  const maxLat = activeBase.lat + 0.02;
+  const minLng = activeBase.lng - 0.02;
+  const maxLng = activeBase.lng + 0.02;
 
   // Convert lat/lng to canvas X/Y
   const getCanvasCoords = (lat, lng, width, height) => {

@@ -202,7 +202,8 @@ export const INITIAL_TRANSACCIONES = [
 
 // Ubicación de la tienda base (centro del mapa)
 export const TIENDA_BASE = {
-  nombre: "Centro de Despacho Central",
-  lat: 40.416775,
-  lng: -3.703790
+  nombre: "Yogur Griego Junín - Base Central",
+  direccion: "Base Central de Despacho",
+  lat: -34.5833,
+  lng: -60.9500
 };
