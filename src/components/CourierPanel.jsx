@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Wallet, Fuel, CheckCircle, Navigation, Play, User, RefreshCw } from "lucide-react";
+import { Wallet, Fuel, CheckCircle, Navigation, Play, User, RefreshCw, MapPin } from "lucide-react";
 import { hashPassword } from "../utils/security";
 
 export default function CourierPanel({
@@ -208,6 +208,50 @@ export default function CourierPanel({
                       </span>
                     </div>
                   </div>
+
+                  {/* Embedded Google Maps Preview */}
+                  <div style={{ marginTop: "0.75rem", marginBottom: "0.75rem", borderRadius: "10px", overflow: "hidden", border: "1px solid var(--border-color)", height: "130px" }}>
+                    <iframe
+                      title={`Google Maps ${order.id}`}
+                      width="100%"
+                      height="100%"
+                      style={{ border: 0 }}
+                      loading="lazy"
+                      allowFullScreen
+                      src={`https://maps.google.com/maps?q=${order.lat && order.lng ? `${order.lat},${order.lng}` : encodeURIComponent(order.direccion)}&z=15&output=embed`}
+                    />
+                  </div>
+
+                  {/* Direct GPS Navigation Button */}
+                  <a
+                    href={
+                      order.lat && order.lng
+                        ? `https://www.google.com/maps/dir/?api=1&destination=${order.lat},${order.lng}`
+                        : `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(order.direccion)}`
+                    }
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="btn"
+                    style={{
+                      width: "100%",
+                      gap: "0.5rem",
+                      marginBottom: "0.75rem",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      background: "rgba(59, 130, 246, 0.15)",
+                      border: "1px solid rgba(59, 130, 246, 0.35)",
+                      color: "#60A5FA",
+                      fontWeight: "600",
+                      fontSize: "0.85rem",
+                      textDecoration: "none",
+                      borderRadius: "10px",
+                      padding: "0.5rem"
+                    }}
+                  >
+                    <MapPin size={16} />
+                    Abrir Recorrido en Google Maps (GPS)
+                  </a>
 
                   <div style={styles.orderActions}>
                     {order.estado === "pendiente" ? (

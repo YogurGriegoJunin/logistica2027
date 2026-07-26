@@ -223,6 +223,21 @@ export default function SimulatedMap({ couriers, orders, setCouriers }) {
           <h3>Mapa de Despachos en Vivo</h3>
         </div>
         <div style={styles.statusChips}>
+          <a
+            href={`https://www.google.com/maps/search/?api=1&query=${TIENDA_BASE.lat},${TIENDA_BASE.lng}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            style={{
+              ...styles.chip,
+              color: "#60A5FA",
+              borderColor: "rgba(59, 130, 246, 0.3)",
+              background: "rgba(59, 130, 246, 0.1)",
+              textDecoration: "none",
+              fontWeight: "600"
+            }}
+          >
+            <MapPin size={12} color="#60A5FA" /> Google Maps
+          </a>
           <span style={styles.chip}><span style={{ ...styles.dot, backgroundColor: "#8b5cf6" }} /> Base Central</span>
           <span style={styles.chip}><span style={{ ...styles.dot, backgroundColor: "#f59e0b" }} /> Pendientes</span>
         </div>
