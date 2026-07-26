@@ -159,10 +159,8 @@ export default function AdminPanel({
 
   const handleOrderSubmit = (e) => {
     e.preventDefault();
-    if (!clienteManual.trim() || !direccionManual.trim()) {
-      alert("Por favor ingresa el nombre del cliente y la dirección de entrega.");
-      return;
-    }
+    const finalClient = clienteManual.trim() || "Cliente Mostrador";
+    const finalAddress = direccionManual.trim() || "Entrega en Local";
 
     let finalCart = [...cartItems];
 
@@ -210,8 +208,8 @@ export default function AdminPanel({
     }
 
     onCreateOrder({
-      cliente: clienteManual.trim(),
-      direccion: direccionManual.trim(),
+      cliente: finalClient,
+      direccion: finalAddress,
       lat,
       lng,
       valor: totalVal,
@@ -483,7 +481,6 @@ export default function AdminPanel({
                   value={clienteManual}
                   onChange={(e) => setClienteManual(e.target.value)}
                   disabled={!!selectedClientId}
-                  required
                 />
               </div>
 
@@ -496,7 +493,6 @@ export default function AdminPanel({
                   value={direccionManual}
                   onChange={(e) => setDireccionManual(e.target.value)}
                   disabled={!!selectedClientId}
-                  required
                 />
               </div>
 
@@ -644,11 +640,10 @@ export default function AdminPanel({
               <button
                 type="submit"
                 className="btn btn-primary"
-                style={{ marginTop: "1rem", width: "100%" }}
-                disabled={cartItems.length === 0}
+                style={{ marginTop: "1rem", width: "100%", gap: "0.5rem" }}
               >
                 <ClipboardList size={18} />
-                Despachar Pedido (${runningTotal.toLocaleString()})
+                Despachar Pedido {runningTotal > 0 ? `($${runningTotal.toLocaleString()})` : ""}
               </button>
             </form>
           </div>
