@@ -183,6 +183,26 @@ export default function App() {
     setProducts((prev) => prev.filter((p) => p.id !== productId));
   };
 
+  const handleRestoreBackup = (data) => {
+    if (data.adminPasswordHash) setAdminPasswordHash(data.adminPasswordHash);
+    if (Array.isArray(data.couriers)) setCouriers(data.couriers);
+    if (Array.isArray(data.clients)) setClients(data.clients);
+    if (Array.isArray(data.products)) setProducts(data.products);
+    if (Array.isArray(data.orders)) setOrders(data.orders);
+    if (Array.isArray(data.transactions)) setTransactions(data.transactions);
+  };
+
+  const handleResetFactory = () => {
+    if (
+      window.confirm(
+        "¿Seguro que deseas restablecer la aplicación a los datos de fábrica? Se borrarán las personalizaciones locales."
+      )
+    ) {
+      localStorage.clear();
+      window.location.reload();
+    }
+  };
+
   // 1. Create a new delivery order
   const handleCreateOrder = (newOrder) => {
     const orderId = `ped-${Date.now().toString().slice(-4)}`;
@@ -456,8 +476,11 @@ export default function App() {
             couriers={couriers}
             clients={clients}
             products={products}
+            transactions={transactions}
             adminPasswordHash={adminPasswordHash}
             setAdminPasswordHash={setAdminPasswordHash}
+            onRestoreBackup={handleRestoreBackup}
+            onResetFactory={handleResetFactory}
             onCreateOrder={handleCreateOrder}
             onCreateClient={handleCreateClient}
             onDeleteClient={handleDeleteClient}

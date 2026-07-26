@@ -16,7 +16,10 @@ import {
   Tag,
   Boxes,
   CheckCircle,
-  AlertCircle
+  AlertCircle,
+  Download,
+  Upload,
+  RotateCcw
 } from "lucide-react";
 import { hashPassword } from "../utils/security";
 
@@ -25,8 +28,11 @@ export default function AdminPanel({
   couriers,
   clients = [],
   products = [],
+  transactions = [],
   adminPasswordHash,
   setAdminPasswordHash,
+  onRestoreBackup,
+  onResetFactory,
   onCreateOrder,
   onCreateClient,
   onDeleteClient,
@@ -301,6 +307,51 @@ export default function AdminPanel({
       console.error(err);
       setPassErrorMsg("Error al procesar el cambio de contraseña.");
     }
+  };
+
+  const handleDownloadBackup = () => {
+    const backupData = {
+      version: "1.0",
+      timestamp: new Date().toISOString(),
+      adminPasswordHash,
+      couriers,
+      clients,
+      products,
+      orders,
+      transactions
+    };
+
+    const jsonStr = JSON.stringify(backupData, null, 2);
+    const blob = new Blob([jsonStr], { type: "application/json" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = `RapiConta_Backup_${new Date().toISOString().slice(0, 10)}.json`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+  };
+
+  const handleFileRestore = (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      try {
+        const data = JSON.parse(event.target.result);
+        if (!data.couriers || !data.clients || !data.products) {
+          alert("El archivo JSON no es una copia de seguridad válida de RapiConta.");
+          return;
+        }
+        onRestoreBackup(data);
+        alert("¡Copia de seguridad restaurada con éxito!");
+      } catch (err) {
+        alert("Error al leer el archivo JSON de copia de seguridad.");
+      }
+    };
+    reader.readAsText(file);
   };
 
   return (
@@ -1213,20 +1264,51 @@ export default function AdminPanel({
             </form>
           </div>
 
-          {/* Información General */}
+          {/* Backup y Restauración */}
           <div className="glass-card" style={styles.listCard}>
             <div style={styles.cardHeader}>
-              <Users size={20} color="var(--secondary)" />
-              <h2>Configuración del Sistema</h2>
+              <Download size={20} color="var(--primary)" />
+              <h2>Copia de Seguridad y Restauración</h2>
             </div>
             <p style={{ marginBottom: "1rem", fontSize: "0.9rem" }}>
-              Desde este panel puedes controlar las configuraciones de seguridad de la consola. La contraseña de administrador restringe el acceso desde la pantalla de inicio de sesión de roles.
+              Exporta una copia completa de tu base de datos (pedidos, clientes, repartidores, catálogo y finanzas) en formato JSON para guardarla en tu computadora o migrar a otro dispositivo.
             </p>
-            <div style={styles.infoAlert}>
-              <Shield size={16} color="var(--primary)" />
-              <span style={{ fontSize: "0.78rem", color: "var(--text-muted)" }}>
-                Si cambias la contraseña de administrador, asegúrate de recordarla. Los repartidores podrán cambiar sus PINs individuales directamente desde sus respectivos paneles móviles simulados.
-              </span>
+
+            <div style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
+              <button
+                type="button"
+                className="btn btn-primary"
+                style={{ width: "100%", gap: "0.5rem", justifyContent: "center" }}
+                onClick={handleDownloadBackup}
+              >
+                <Download size={16} />
+                Descargar Copia de Seguridad (Backup JSON)
+              </button>
+
+              <div style={{ borderTop: "1px solid var(--border-color)", paddingTop: "1rem" }}>
+                <label style={{ fontSize: "0.85rem", fontWeight: "600", color: "#fff", display: "block", marginBottom: "0.5rem" }}>
+                  Restaurar desde Archivo (.json):
+                </label>
+                <input
+                  type="file"
+                  accept=".json"
+                  className="input-field"
+                  style={{ fontSize: "0.85rem" }}
+                  onChange={handleFileRestore}
+                />
+              </div>
+
+              <div style={{ borderTop: "1px solid var(--border-color)", paddingTop: "1rem" }}>
+                <button
+                  type="button"
+                  className="btn btn-danger"
+                  style={{ width: "100%", gap: "0.5rem", justifyContent: "center" }}
+                  onClick={onResetFactory}
+                >
+                  <RotateCcw size={16} />
+                  Restablecer Datos a Valores de Fábrica
+                </button>
+              </div>
             </div>
           </div>
         </div>
