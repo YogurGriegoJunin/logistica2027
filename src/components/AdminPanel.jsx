@@ -198,7 +198,7 @@ export default function AdminPanel({
 
   const handleClientSubmit = (e) => {
     e.preventDefault();
-    if (!nuevoNombre || !nuevaDireccion || !nuevoTelefono) return;
+    if (!nuevoNombre.trim() || !nuevaDireccion.trim()) return;
 
     const centerLat = 40.416775;
     const centerLng = -3.703790;
@@ -206,9 +206,9 @@ export default function AdminPanel({
     const lng = centerLng + (Math.random() - 0.5) * 0.035;
 
     onCreateClient({
-      nombre: nuevoNombre,
-      direccion: nuevaDireccion,
-      telefono: nuevoTelefono,
+      nombre: nuevoNombre.trim(),
+      direccion: nuevaDireccion.trim(),
+      telefono: nuevoTelefono.trim() || "Sin teléfono",
       lat,
       lng
     });
@@ -220,14 +220,27 @@ export default function AdminPanel({
 
   const handleCourierSubmit = async (e) => {
     e.preventDefault();
-    if (!courierNombre || !courierAvatar || !courierColor || !courierPinVal) return;
+    if (!courierNombre.trim()) return;
 
-    const pinHash = await hashPassword(courierPinVal);
+    const rawPin = courierPinVal.trim() || "1234";
+    const pinHash = await hashPassword(rawPin);
+
+    let avatarInitials = courierAvatar.trim().toUpperCase().slice(0, 2);
+    if (!avatarInitials) {
+      avatarInitials =
+        courierNombre
+          .trim()
+          .split(" ")
+          .map((n) => n[0])
+          .join("")
+          .toUpperCase()
+          .slice(0, 2) || "RP";
+    }
 
     onCreateCourier({
-      nombre: courierNombre,
-      avatar: courierAvatar.toUpperCase().slice(0, 2),
-      color: courierColor,
+      nombre: courierNombre.trim(),
+      avatar: avatarInitials,
+      color: courierColor || "#8B5CF6",
       pinHash
     });
 
@@ -239,11 +252,13 @@ export default function AdminPanel({
 
   const handleProductSubmit = (e) => {
     e.preventDefault();
-    if (!productoNombre || !productoPrecio) return;
+    if (!productoNombre.trim()) return;
+
+    const priceVal = parseFloat(productoPrecio) || 0;
 
     onCreateProduct({
-      nombre: productoNombre,
-      precio: parseFloat(productoPrecio)
+      nombre: productoNombre.trim(),
+      precio: priceVal
     });
 
     setProductoNombre("");

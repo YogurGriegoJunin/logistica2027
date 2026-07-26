@@ -25,85 +25,102 @@ export default function App() {
   const [activeTab, setActiveTab] = useState("admin");
 
   const [couriers, setCouriers] = useState(() => {
-    const saved = localStorage.getItem("rapiconta_couriers");
-    if (saved) {
-      try {
-        return JSON.parse(saved);
-      } catch (e) {}
-    }
+    try {
+      const saved = localStorage.getItem("rapiconta_couriers");
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+      }
+    } catch (e) {}
     return INITIAL_MENSAJEROS;
   });
 
   const [clients, setClients] = useState(() => {
-    const saved = localStorage.getItem("rapiconta_clients");
-    if (saved) {
-      try {
-        return JSON.parse(saved);
-      } catch (e) {}
-    }
+    try {
+      const saved = localStorage.getItem("rapiconta_clients");
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+      }
+    } catch (e) {}
     return INITIAL_CLIENTES;
   });
 
   const [products, setProducts] = useState(() => {
-    const saved = localStorage.getItem("rapiconta_products");
-    if (saved) {
-      try {
-        return JSON.parse(saved);
-      } catch (e) {}
-    }
+    try {
+      const saved = localStorage.getItem("rapiconta_products");
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+      }
+    } catch (e) {}
     return INITIAL_PRODUCTOS;
   });
 
   const [orders, setOrders] = useState(() => {
-    const saved = localStorage.getItem("rapiconta_orders");
-    if (saved) {
-      try {
-        return JSON.parse(saved);
-      } catch (e) {}
-    }
+    try {
+      const saved = localStorage.getItem("rapiconta_orders");
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (Array.isArray(parsed)) return parsed;
+      }
+    } catch (e) {}
     return INITIAL_PEDIDOS;
   });
 
   const [transactions, setTransactions] = useState(() => {
-    const saved = localStorage.getItem("rapiconta_transactions");
-    if (saved) {
-      try {
-        return JSON.parse(saved);
-      } catch (e) {}
-    }
+    try {
+      const saved = localStorage.getItem("rapiconta_transactions");
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (Array.isArray(parsed)) return parsed;
+      }
+    } catch (e) {}
     return INITIAL_TRANSACCIONES;
   });
 
   // Persist states to localStorage whenever they change
   useEffect(() => {
-    localStorage.setItem("rapiconta_admin_pass_hash", adminPasswordHash);
+    try {
+      localStorage.setItem("rapiconta_admin_pass_hash", adminPasswordHash);
+    } catch (e) {}
   }, [adminPasswordHash]);
 
   useEffect(() => {
-    localStorage.setItem("rapiconta_couriers", JSON.stringify(couriers));
+    try {
+      localStorage.setItem("rapiconta_couriers", JSON.stringify(couriers));
+    } catch (e) {}
   }, [couriers]);
 
   useEffect(() => {
-    localStorage.setItem("rapiconta_clients", JSON.stringify(clients));
+    try {
+      localStorage.setItem("rapiconta_clients", JSON.stringify(clients));
+    } catch (e) {}
   }, [clients]);
 
   useEffect(() => {
-    localStorage.setItem("rapiconta_products", JSON.stringify(products));
+    try {
+      localStorage.setItem("rapiconta_products", JSON.stringify(products));
+    } catch (e) {}
   }, [products]);
 
   useEffect(() => {
-    localStorage.setItem("rapiconta_orders", JSON.stringify(orders));
+    try {
+      localStorage.setItem("rapiconta_orders", JSON.stringify(orders));
+    } catch (e) {}
   }, [orders]);
 
   useEffect(() => {
-    localStorage.setItem("rapiconta_transactions", JSON.stringify(transactions));
+    try {
+      localStorage.setItem("rapiconta_transactions", JSON.stringify(transactions));
+    } catch (e) {}
   }, [transactions]);
   
   // Track selected courier for courier simulator view
-  const [selectedCourierId, setSelectedCourierId] = useState(INITIAL_MENSAJEROS[0].id);
+  const [selectedCourierId, setSelectedCourierId] = useState(INITIAL_MENSAJEROS[0]?.id || "m1");
 
-  const selectedCourier = couriers.find((c) => c.id === selectedCourierId);
-  const setSelectedCourier = (courier) => setSelectedCourierId(courier.id);
+  const selectedCourier = couriers.find((c) => c.id === selectedCourierId) || couriers[0];
+  const setSelectedCourier = (courier) => setSelectedCourierId(courier?.id || "m1");
 
   // Helper to check if a courier has other deliveries currently in progress
   const hasActiveDeliveries = (courierId, excludeOrderId = null) => {
