@@ -1,12 +1,14 @@
 import React from "react";
-import { Shield, Truck, DollarSign, Activity, LogOut, User } from "lucide-react";
+import { Shield, Truck, DollarSign, Activity, LogOut, User, Cloud, RefreshCw } from "lucide-react";
 
 export default function Navbar({
   userRole,
   activeTab,
   setActiveTab,
   selectedCourier,
-  onLogout
+  onLogout,
+  isSyncing,
+  onManualSync
 }) {
   return (
     <header style={styles.header}>
@@ -73,6 +75,26 @@ export default function Navbar({
 
       {/* Logout Control and Session Status */}
       <div style={styles.rightContainer}>
+        <button
+          type="button"
+          className="btn"
+          style={{
+            background: "rgba(16, 185, 129, 0.12)",
+            border: "1px solid rgba(16, 185, 129, 0.3)",
+            color: "var(--success)",
+            fontSize: "0.78rem",
+            padding: "0.3rem 0.6rem",
+            gap: "0.35rem",
+            display: "flex",
+            alignItems: "center"
+          }}
+          onClick={onManualSync}
+          title="Nube Sincronizada en Tiempo Real (Clic para sincronizar ya)"
+        >
+          <Cloud size={14} />
+          {isSyncing ? "Sincronizando..." : "Nube Activa"}
+        </button>
+
         <button className="btn btn-secondary" style={styles.logoutBtn} onClick={onLogout}>
           <LogOut size={16} />
           Cerrar Sesión

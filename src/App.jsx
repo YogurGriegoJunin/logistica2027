@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import Navbar from "./components/Navbar";
 import SimulatedMap from "./components/SimulatedMap";
 import AdminPanel from "./components/AdminPanel";
@@ -16,6 +16,7 @@ import {
 } from "./utils/mockData";
 
 import { DEFAULT_ADMIN_HASH } from "./utils/security";
+import { fetchStoreFromCloud, pushStoreToCloud, DEFAULT_CLOUD_BLOB_ID } from "./utils/cloudSync";
 
 export default function App() {
   const [userRole, setUserRole] = useState(null); // 'admin' | 'courier' | null
@@ -79,41 +80,98 @@ export default function App() {
     return INITIAL_TRANSACCIONES;
   });
 
-  // Persist states to localStorage whenever they change
+  // Cloud Sync state
+  const [cloudSyncId] = useState(() => {
+    return localStorage.getItem("rapiconta_cloud_sync_id") || DEFAULT_CLOUD_BLOB_ID;
+  });
+  const [isCloudSyncing, setIsCloudSyncing] = useState(false);
+  const lastCloudUpdatedAtRef = useRef(null);
+
+  // Background Cloud Sync Pulling (Every 4 seconds)
+  useEffect(() => {
+    let isMounted = true;
+
+    const pullFromCloud = async () => {
+      const cloudData = await fetchStoreFromCloud(cloudSyncId);
+      if (!isMounted || !cloudData) return;
+
+      if (cloudData.updatedAt && cloudData.updatedAt !== lastCloudUpdatedAtRef.current) {
+        lastCloudUpdatedAtRef.current = cloudData.updatedAt;
+
+        if (cloudData.adminPasswordHash) setAdminPasswordHash(cloudData.adminPasswordHash);
+        if (Array.isArray(cloudData.couriers) && cloudData.couriers.length > 0) setCouriers(cloudData.couriers);
+        if (Array.isArray(cloudData.clients) && cloudData.clients.length > 0) setClients(cloudData.clients);
+        if (Array.isArray(cloudData.products) && cloudData.products.length > 0) setProducts(cloudData.products);
+        if (Array.isArray(cloudData.orders)) setOrders(cloudData.orders);
+        if (Array.isArray(cloudData.transactions)) setTransactions(cloudData.transactions);
+      }
+    };
+
+    pullFromCloud();
+    const interval = setInterval(pullFromCloud, 4000);
+    return () => {
+      isMounted = false;
+      clearInterval(interval);
+    };
+  }, [cloudSyncId]);
+
+  // Helper to push updated states to Cloud
+  const triggerCloudPush = async (overrideState = {}) => {
+    setIsCloudSyncing(true);
+    const storePayload = {
+      adminPasswordHash: overrideState.adminPasswordHash || adminPasswordHash,
+      couriers: overrideState.couriers || couriers,
+      clients: overrideState.clients || clients,
+      products: overrideState.products || products,
+      orders: overrideState.orders || orders,
+      transactions: overrideState.transactions || transactions
+    };
+
+    await pushStoreToCloud(storePayload, cloudSyncId);
+    setIsCloudSyncing(false);
+  };
+
+  // Persist states to localStorage & push to Cloud whenever they change locally
   useEffect(() => {
     try {
       localStorage.setItem("rapiconta_admin_pass_hash", adminPasswordHash);
     } catch (e) {}
+    triggerCloudPush({ adminPasswordHash });
   }, [adminPasswordHash]);
 
   useEffect(() => {
     try {
       localStorage.setItem("rapiconta_couriers", JSON.stringify(couriers));
     } catch (e) {}
+    triggerCloudPush({ couriers });
   }, [couriers]);
 
   useEffect(() => {
     try {
       localStorage.setItem("rapiconta_clients", JSON.stringify(clients));
     } catch (e) {}
+    triggerCloudPush({ clients });
   }, [clients]);
 
   useEffect(() => {
     try {
       localStorage.setItem("rapiconta_products", JSON.stringify(products));
     } catch (e) {}
+    triggerCloudPush({ products });
   }, [products]);
 
   useEffect(() => {
     try {
       localStorage.setItem("rapiconta_orders", JSON.stringify(orders));
     } catch (e) {}
+    triggerCloudPush({ orders });
   }, [orders]);
 
   useEffect(() => {
     try {
       localStorage.setItem("rapiconta_transactions", JSON.stringify(transactions));
     } catch (e) {}
+    triggerCloudPush({ transactions });
   }, [transactions]);
   
   // Track selected courier for courier simulator view
@@ -460,6 +518,8 @@ export default function App() {
         setActiveTab={setActiveTab}
         selectedCourier={selectedCourier}
         onLogout={handleLogout}
+        isSyncing={isCloudSyncing}
+        onManualSync={() => triggerCloudPush()}
       />
 
       <main className="main-content">
