@@ -19,11 +19,23 @@ import { DEFAULT_ADMIN_HASH } from "./utils/security";
 import { fetchStoreFromCloud, pushStoreToCloud, DEFAULT_CLOUD_BLOB_ID } from "./utils/cloudSync";
 
 export default function App() {
-  const [userRole, setUserRole] = useState(null); // 'admin' | 'courier' | null
+  const [userRole, setUserRole] = useState(() => {
+    try {
+      return localStorage.getItem("rapiconta_user_role") || null;
+    } catch (e) {
+      return null;
+    }
+  });
   const [adminPasswordHash, setAdminPasswordHash] = useState(() => {
     return localStorage.getItem("rapiconta_admin_pass_hash") || DEFAULT_ADMIN_HASH;
   });
-  const [activeTab, setActiveTab] = useState("admin");
+  const [activeTab, setActiveTab] = useState(() => {
+    try {
+      return localStorage.getItem("rapiconta_active_tab") || "admin";
+    } catch (e) {
+      return "admin";
+    }
+  });
 
   const [couriers, setCouriers] = useState(() => {
     try {
@@ -175,7 +187,39 @@ export default function App() {
   }, [transactions]);
   
   // Track selected courier for courier simulator view
-  const [selectedCourierId, setSelectedCourierId] = useState(INITIAL_MENSAJEROS[0]?.id || "m1");
+  const [selectedCourierId, setSelectedCourierId] = useState(() => {
+    try {
+      return localStorage.getItem("rapiconta_selected_courier_id") || INITIAL_MENSAJEROS[0]?.id || "m1";
+    } catch (e) {
+      return INITIAL_MENSAJEROS[0]?.id || "m1";
+    }
+  });
+
+  useEffect(() => {
+    try {
+      if (userRole) {
+        localStorage.setItem("rapiconta_user_role", userRole);
+      } else {
+        localStorage.removeItem("rapiconta_user_role");
+      }
+    } catch (e) {}
+  }, [userRole]);
+
+  useEffect(() => {
+    try {
+      if (activeTab) {
+        localStorage.setItem("rapiconta_active_tab", activeTab);
+      }
+    } catch (e) {}
+  }, [activeTab]);
+
+  useEffect(() => {
+    try {
+      if (selectedCourierId) {
+        localStorage.setItem("rapiconta_selected_courier_id", selectedCourierId);
+      }
+    } catch (e) {}
+  }, [selectedCourierId]);
 
   const selectedCourier = couriers.find((c) => c.id === selectedCourierId) || couriers[0];
   const setSelectedCourier = (courier) => setSelectedCourierId(courier?.id || "m1");

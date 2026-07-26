@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Wallet, Fuel, CheckCircle, Navigation, Play, User, RefreshCw, MapPin } from "lucide-react";
+import { Wallet, Fuel, CheckCircle, Navigation, Play, User, RefreshCw, MapPin, Maximize2, X } from "lucide-react";
 import { hashPassword } from "../utils/security";
 
 export default function CourierPanel({
@@ -18,6 +18,7 @@ export default function CourierPanel({
   const [confirmPin, setConfirmPin] = useState("");
   const [pinSuccessMsg, setPinSuccessMsg] = useState("");
   const [pinErrorMsg, setPinErrorMsg] = useState("");
+  const [fullScreenMapOrder, setFullScreenMapOrder] = useState(null);
 
   if (!selectedCourier) {
     return (
@@ -222,36 +223,60 @@ export default function CourierPanel({
                     />
                   </div>
 
-                  {/* Direct GPS Navigation Button */}
-                  <a
-                    href={
-                      order.lat && order.lng
-                        ? `https://www.google.com/maps/dir/?api=1&destination=${order.lat},${order.lng}`
-                        : `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(order.direccion)}`
-                    }
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="btn"
-                    style={{
-                      width: "100%",
-                      gap: "0.5rem",
-                      marginBottom: "0.75rem",
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "center",
-                      background: "rgba(59, 130, 246, 0.15)",
-                      border: "1px solid rgba(59, 130, 246, 0.35)",
-                      color: "#60A5FA",
-                      fontWeight: "600",
-                      fontSize: "0.85rem",
-                      textDecoration: "none",
-                      borderRadius: "10px",
-                      padding: "0.5rem"
-                    }}
-                  >
-                    <MapPin size={16} />
-                    Abrir Recorrido en Google Maps (GPS)
-                  </a>
+                  {/* Navigation Buttons: In-App Fullscreen & External GPS */}
+                  <div style={{ display: "flex", flexDirection: "column", gap: "0.4rem", marginBottom: "0.75rem" }}>
+                    <button
+                      type="button"
+                      className="btn"
+                      style={{
+                        width: "100%",
+                        gap: "0.5rem",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        background: "rgba(139, 92, 246, 0.15)",
+                        border: "1px solid rgba(139, 92, 246, 0.35)",
+                        color: "#A78BFA",
+                        fontWeight: "600",
+                        fontSize: "0.82rem",
+                        borderRadius: "10px",
+                        padding: "0.45rem"
+                      }}
+                      onClick={() => setFullScreenMapOrder(order)}
+                    >
+                      <Maximize2 size={15} />
+                      Ver Ruta Interactiva en la App
+                    </button>
+
+                    <a
+                      href={
+                        order.lat && order.lng
+                          ? `https://www.google.com/maps/dir/?api=1&destination=${order.lat},${order.lng}`
+                          : `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(order.direccion)}`
+                      }
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="btn"
+                      style={{
+                        width: "100%",
+                        gap: "0.5rem",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        background: "rgba(59, 130, 246, 0.15)",
+                        border: "1px solid rgba(59, 130, 246, 0.35)",
+                        color: "#60A5FA",
+                        fontWeight: "600",
+                        fontSize: "0.82rem",
+                        textDecoration: "none",
+                        borderRadius: "10px",
+                        padding: "0.45rem"
+                      }}
+                    >
+                      <MapPin size={15} />
+                      Abrir en App de Google Maps (GPS)
+                    </a>
+                  </div>
 
                   <div style={styles.orderActions}>
                     {order.estado === "pendiente" ? (
@@ -425,6 +450,76 @@ export default function CourierPanel({
           </div>
         </div>
       </div>
+
+      {/* In-App Fullscreen Map Modal */}
+      {fullScreenMapOrder && (
+        <div
+          style={{
+            position: "fixed",
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            backgroundColor: "rgba(0,0,0,0.85)",
+            backdropFilter: "blur(10px)",
+            zIndex: 9999,
+            display: "flex",
+            flexDirection: "column",
+            padding: "1rem"
+          }}
+          className="animated-fade-in"
+        >
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "center",
+              marginBottom: "0.75rem"
+            }}
+          >
+            <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
+              <Navigation size={20} color="var(--primary)" />
+              <h3 style={{ margin: 0, color: "#fff", fontSize: "1.1rem" }}>
+                Ruta de Entrega: {fullScreenMapOrder.cliente}
+              </h3>
+            </div>
+            <button
+              type="button"
+              className="btn btn-secondary"
+              style={{ padding: "0.4rem 0.6rem" }}
+              onClick={() => setFullScreenMapOrder(null)}
+            >
+              <X size={18} /> Cerrar Mapa
+            </button>
+          </div>
+
+          <div
+            style={{
+              fontSize: "0.85rem",
+              color: "var(--text-muted)",
+              marginBottom: "0.75rem",
+              background: "rgba(255,255,255,0.05)",
+              padding: "0.5rem 0.8rem",
+              borderRadius: "8px"
+            }}
+          >
+            <strong>Dirección:</strong> {fullScreenMapOrder.direccion} |{" "}
+            <strong>Valor:</strong> ${fullScreenMapOrder.valor.toLocaleString()}
+          </div>
+
+          <div style={{ flex: 1, borderRadius: "12px", overflow: "hidden", border: "1px solid var(--border-color)" }}>
+            <iframe
+              title={`Fullscreen Google Maps ${fullScreenMapOrder.id}`}
+              width="100%"
+              height="100%"
+              style={{ border: 0 }}
+              loading="lazy"
+              allowFullScreen
+              src={`https://maps.google.com/maps?q=${fullScreenMapOrder.lat && fullScreenMapOrder.lng ? `${fullScreenMapOrder.lat},${fullScreenMapOrder.lng}` : encodeURIComponent(fullScreenMapOrder.direccion)}&z=16&output=embed`}
+            />
+          </div>
+        </div>
+      )}
     </div>
   );
 }
