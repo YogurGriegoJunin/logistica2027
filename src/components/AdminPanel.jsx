@@ -159,14 +159,43 @@ export default function AdminPanel({
 
   const handleOrderSubmit = (e) => {
     e.preventDefault();
-    if (!clienteManual || !direccionManual || cartItems.length === 0 || !comisionEntrega) {
-      alert("Por favor ingresa cliente, dirección y al menos un artículo.");
+    if (!clienteManual.trim() || !direccionManual.trim()) {
+      alert("Por favor ingresa el nombre del cliente y la dirección de entrega.");
       return;
+    }
+
+    let finalCart = [...cartItems];
+
+    // If cart is empty but user filled out the item name and price, auto-add it
+    if (finalCart.length === 0 && itemName.trim() && itemPrice) {
+      finalCart.push({
+        id: `item-${Date.now()}`,
+        nombre: itemName.trim(),
+        cantidad: parseInt(itemQty) || 1,
+        precio: parseFloat(itemPrice) || 0
+      });
+    }
+
+    // If still empty, create a default order item
+    if (finalCart.length === 0) {
+      finalCart.push({
+        id: `item-${Date.now()}`,
+        nombre: "Pedido de Reparto",
+        cantidad: 1,
+        precio: 5000
+      });
+    }
+
+    const totalVal = finalCart.reduce((sum, item) => sum + item.cantidad * item.precio, 0);
+
+    let comisionVal = parseFloat(comisionEntrega);
+    if (isNaN(comisionVal) || comisionVal <= 0) {
+      comisionVal = Math.max(1000, Math.min(3000, Math.round(totalVal * 0.1))) || 1000;
     }
 
     let lat, lng;
     if (selectedClientId) {
-      const client = clients.find(c => c.id === selectedClientId);
+      const client = clients.find((c) => c.id === selectedClientId);
       if (client) {
         lat = client.lat;
         lng = client.lng;
@@ -181,15 +210,15 @@ export default function AdminPanel({
     }
 
     onCreateOrder({
-      cliente: clienteManual,
-      direccion: direccionManual,
+      cliente: clienteManual.trim(),
+      direccion: direccionManual.trim(),
       lat,
       lng,
-      valor: runningTotal,
-      comisionEntrega: parseFloat(comisionEntrega),
-      metodoPago,
+      valor: totalVal,
+      comisionEntrega: comisionVal,
+      metodoPago: metodoPago || "efectivo",
       mensajeroId: mensajeroId || null,
-      articulos: cartItems.map(({ nombre, cantidad, precio }) => ({ nombre, cantidad, precio }))
+      articulos: finalCart.map(({ nombre, cantidad, precio }) => ({ nombre, cantidad, precio }))
     });
 
     // Reset Form
@@ -197,6 +226,10 @@ export default function AdminPanel({
     setClienteManual("");
     setDireccionManual("");
     setCartItems([]);
+    setItemName("");
+    setItemQty("1");
+    setItemPrice("");
+    setSelectedCatalogProductId("");
     setComisionEntrega("");
     setMetodoPago("efectivo");
     setMensajeroId("");
