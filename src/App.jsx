@@ -108,9 +108,83 @@ export default function App() {
     triggerCloudPush({ storeBase: newBase });
   };
 
-  // Cloud Sync state
+  const DEFAULT_BUSINESS_LIST = [
+    {
+      id: "yogur-junin",
+      name: "Yogur Griego Junín - Base Central",
+      cloudSyncId: DEFAULT_CLOUD_BLOB_ID,
+      adminHash: DEFAULT_ADMIN_HASH,
+      storeBase: TIENDA_BASE
+    }
+  ];
+
+  const [businesses, setBusinesses] = useState(() => {
+    try {
+      const saved = localStorage.getItem("rapiconta_business_list");
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          if (!parsed.some((b) => b.id === "yogur-junin")) {
+            return [...DEFAULT_BUSINESS_LIST, ...parsed];
+          }
+          return parsed;
+        }
+      }
+    } catch (e) {}
+    return DEFAULT_BUSINESS_LIST;
+  });
+
+  const [activeBusinessId, setActiveBusinessId] = useState(() => {
+    try {
+      return localStorage.getItem("rapiconta_active_business_id") || "yogur-junin";
+    } catch (e) {
+      return "yogur-junin";
+    }
+  });
+
+  useEffect(() => {
+    try {
+      localStorage.setItem("rapiconta_business_list", JSON.stringify(businesses));
+    } catch (e) {}
+  }, [businesses]);
+
+  const handleSwitchBusiness = (bizId) => {
+    const biz = businesses.find((b) => b.id === bizId);
+    if (!biz) return;
+
+    setActiveBusinessId(biz.id);
+    try {
+      localStorage.setItem("rapiconta_active_business_id", biz.id);
+      localStorage.setItem("rapiconta_cloud_sync_id", biz.cloudSyncId);
+      if (biz.adminHash) {
+        localStorage.setItem("rapiconta_admin_pass_hash", biz.adminHash);
+        setAdminPasswordHash(biz.adminHash);
+      }
+      if (biz.storeBase) {
+        localStorage.setItem("rapiconta_store_base", JSON.stringify(biz.storeBase));
+        setStoreBase(biz.storeBase);
+      }
+    } catch (e) {}
+
+    window.location.reload();
+  };
+
+  const handleCreateNewBusinessInApp = (newBizObj) => {
+    setBusinesses((prev) => {
+      const filtered = prev.filter((b) => b.id !== newBizObj.id);
+      const updated = [...filtered, newBizObj];
+      try {
+        localStorage.setItem("rapiconta_business_list", JSON.stringify(updated));
+      } catch (e) {}
+      return updated;
+    });
+  };
   const [cloudSyncId] = useState(() => {
-    return localStorage.getItem("rapiconta_cloud_sync_id") || DEFAULT_CLOUD_BLOB_ID;
+    try {
+      return localStorage.getItem("rapiconta_cloud_sync_id") || DEFAULT_CLOUD_BLOB_ID;
+    } catch (e) {
+      return DEFAULT_CLOUD_BLOB_ID;
+    }
   });
   const [isCloudSyncing, setIsCloudSyncing] = useState(false);
   const lastCloudUpdatedAtRef = useRef(null);
@@ -570,6 +644,10 @@ export default function App() {
         onLogin={handleLogin}
         storeBase={storeBase}
         onUpdateStoreBase={handleUpdateStoreBase}
+        businesses={businesses}
+        activeBusinessId={activeBusinessId}
+        onSwitchBusiness={handleSwitchBusiness}
+        onRegisterBusiness={handleCreateNewBusinessInApp}
       />
     );
   }
@@ -584,6 +662,9 @@ export default function App() {
         onLogout={handleLogout}
         isSyncing={isCloudSyncing}
         onManualSync={() => triggerCloudPush()}
+        businesses={businesses}
+        activeBusinessId={activeBusinessId}
+        onSwitchBusiness={handleSwitchBusiness}
       />
 
       <main className="main-content">

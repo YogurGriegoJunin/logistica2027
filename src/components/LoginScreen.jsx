@@ -2,7 +2,17 @@ import React, { useState } from "react";
 import { Shield, Truck, ChevronRight, Key, ArrowLeft, AlertCircle, Building, CheckCircle, Sparkles, MapPin, DollarSign, Cloud, Download } from "lucide-react";
 import { hashPassword } from "../utils/security";
 
-export default function LoginScreen({ couriers, adminPasswordHash, onLogin, storeBase, onUpdateStoreBase }) {
+export default function LoginScreen({
+  couriers,
+  adminPasswordHash,
+  onLogin,
+  storeBase,
+  onUpdateStoreBase,
+  businesses = [],
+  activeBusinessId,
+  onSwitchBusiness,
+  onRegisterBusiness
+}) {
   // States: 'select-role' | 'admin-password' | 'select-courier' | 'courier-pin' | 'commercial-info' | 'new-business'
   const [view, setView] = useState("select-role");
   
@@ -61,12 +71,9 @@ export default function LoginScreen({ couriers, adminPasswordHash, onLogin, stor
     e.preventDefault();
     if (!newBizName.trim() || !newBizPass) return;
 
-    // Create a new Cloud Sync ID for this business
+    const bizId = `biz_${Date.now()}`;
     const bizCloudId = `biz_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`;
-    localStorage.setItem("rapiconta_cloud_sync_id", bizCloudId);
-
     const newHash = await hashPassword(newBizPass);
-    localStorage.setItem("rapiconta_admin_pass_hash", newHash);
 
     const newBase = {
       nombre: newBizName.trim(),
@@ -75,14 +82,24 @@ export default function LoginScreen({ couriers, adminPasswordHash, onLogin, stor
       lng: -60.9500
     };
 
-    if (onUpdateStoreBase) {
-      onUpdateStoreBase(newBase);
+    const newBizObj = {
+      id: bizId,
+      name: newBizName.trim(),
+      cloudSyncId: bizCloudId,
+      adminHash: newHash,
+      storeBase: newBase
+    };
+
+    if (onRegisterBusiness) {
+      onRegisterBusiness(newBizObj);
     }
 
-    setBizSuccessMsg(`¡Negocio "${newBizName.trim()}" registrado con éxito! Redirigiendo...`);
+    setBizSuccessMsg(`¡Empresa "${newBizName.trim()}" registrada con éxito!`);
     setTimeout(() => {
-      window.location.reload();
-    }, 1500);
+      if (onSwitchBusiness) {
+        onSwitchBusiness(bizId);
+      }
+    }, 1000);
   };
 
   const goBack = () => {
@@ -108,6 +125,27 @@ export default function LoginScreen({ couriers, adminPasswordHash, onLogin, stor
             <p style={styles.brandSubtitle}>Plataforma de Gestión de Repartos & Flota</p>
           </div>
         </div>
+
+        {/* Business Selector (Switch between registered businesses) */}
+        {businesses.length > 0 && view === "select-role" && (
+          <div style={{ marginBottom: "1rem", textAlign: "left", background: "rgba(255,255,255,0.03)", padding: "0.75rem", borderRadius: "10px", border: "1px solid var(--border-color)" }}>
+            <label style={{ fontSize: "0.78rem", color: "var(--text-muted)", fontWeight: "600", display: "block", marginBottom: "0.35rem" }}>
+              🏢 Seleccionar Empresa / Cambiar de Negocio:
+            </label>
+            <select
+              className="input-field"
+              style={{ fontSize: "0.85rem", padding: "0.45rem", background: "rgba(139, 92, 246, 0.15)", borderColor: "rgba(139, 92, 246, 0.3)", color: "#fff", fontWeight: "600" }}
+              value={activeBusinessId}
+              onChange={(e) => onSwitchBusiness && onSwitchBusiness(e.target.value)}
+            >
+              {businesses.map((biz) => (
+                <option key={biz.id} value={biz.id} style={{ background: "#111827", color: "#fff" }}>
+                  {biz.name}
+                </option>
+              ))}
+            </select>
+          </div>
+        )}
 
         {/* Global Error Banner */}
         {errorMsg && (
