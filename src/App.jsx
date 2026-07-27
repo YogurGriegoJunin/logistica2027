@@ -19,6 +19,7 @@ import { DEFAULT_ADMIN_HASH } from "./utils/security";
 import { fetchStoreFromCloud, pushStoreToCloud, DEFAULT_CLOUD_BLOB_ID } from "./utils/cloudSync";
 
 export default function App() {
+  const [showMap, setShowMap] = useState(true);
   const [userRole, setUserRole] = useState(() => {
     try {
       return localStorage.getItem("rapiconta_user_role") || null;
@@ -724,7 +725,6 @@ export default function App() {
         businesses={businesses}
         activeBusinessId={activeBusinessId}
         onSwitchBusiness={handleSwitchBusiness}
-        onRegisterBusiness={handleCreateNewBusinessInApp}
       />
     );
   }
@@ -745,13 +745,31 @@ export default function App() {
       />
 
       <main className="main-content">
-        {/* Render Map permanently above panels or as part of layouts for premium dashboard feeling */}
-        <SimulatedMap
-          couriers={couriers}
-          orders={orders}
-          setCouriers={setCouriers}
-          storeBase={storeBase}
-        />
+        {/* Map Toggle & Quick Action Bar */}
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1rem" }}>
+          <span style={{ fontSize: "0.9rem", fontWeight: "700", color: "#fff", display: "flex", alignItems: "center", gap: "0.4rem" }}>
+            {userRole === "admin" ? "🛠️ Consola de Administración Operativa" : "🛵 Portal de Repartidor"}
+          </span>
+
+          <button
+            type="button"
+            className="btn btn-secondary"
+            style={{ fontSize: "0.8rem", padding: "0.4rem 0.8rem", gap: "0.4rem", background: "rgba(59, 130, 246, 0.15)", borderColor: "rgba(59, 130, 246, 0.3)", color: "var(--secondary)" }}
+            onClick={() => setShowMap(!showMap)}
+          >
+            🗺️ {showMap ? "Ocultar Mapa Radar GPS" : "Mostrar Mapa Radar GPS"}
+          </button>
+        </div>
+
+        {/* Render Map conditionally */}
+        {showMap && (
+          <SimulatedMap
+            couriers={couriers}
+            orders={orders}
+            setCouriers={setCouriers}
+            storeBase={storeBase}
+          />
+        )}
 
         {userRole === "admin" && activeTab !== "accounting" && (
           <AdminPanel
