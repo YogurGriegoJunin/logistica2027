@@ -684,11 +684,22 @@ export default function App() {
 
   const handleLogin = (role, courierId = null) => {
     setUserRole(role);
+    try {
+      localStorage.setItem("rapiconta_user_role", role);
+    } catch (e) {}
+
     if (role === "courier" && courierId) {
       setSelectedCourierId(courierId);
       setActiveTab("courier");
+      try {
+        localStorage.setItem("rapiconta_active_tab", "courier");
+        localStorage.setItem("rapiconta_selected_courier_id", courierId);
+      } catch (e) {}
     } else if (role === "admin") {
       setActiveTab("admin");
+      try {
+        localStorage.setItem("rapiconta_active_tab", "admin");
+      } catch (e) {}
     }
   };
 
@@ -742,7 +753,7 @@ export default function App() {
           storeBase={storeBase}
         />
 
-        {userRole === "admin" && activeTab === "admin" && (
+        {userRole === "admin" && activeTab !== "accounting" && (
           <AdminPanel
             orders={orders}
             couriers={couriers}
