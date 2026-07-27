@@ -1209,7 +1209,18 @@ export default function AdminPanel({
                   {products.length === 0 ? (
                     <tr>
                       <td colSpan="6" style={{ textAlign: "center", color: "var(--text-dark)", padding: "2rem" }}>
-                        Catálogo de productos vacío. Registra uno a la izquierda.
+                        <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "0.75rem" }}>
+                          <span>Catálogo de productos vacío. Registra un producto a la izquierda o restablece los datos iniciales.</span>
+                          <button
+                            type="button"
+                            className="btn btn-primary"
+                            style={{ fontSize: "0.82rem", gap: "0.4rem" }}
+                            onClick={onResetFactory}
+                          >
+                            <RotateCcw size={15} />
+                            Restablecer Datos de Fábrica (Recuperar Yogur y Catálogo)
+                          </button>
+                        </div>
                       </td>
                     </tr>
                   ) : (

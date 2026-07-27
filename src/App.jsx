@@ -231,11 +231,36 @@ export default function App() {
 
         if (cloudData.storeBase) setStoreBase(cloudData.storeBase);
         if (cloudData.adminPasswordHash) setAdminPasswordHash(cloudData.adminPasswordHash);
-        if (Array.isArray(cloudData.couriers) && cloudData.couriers.length > 0) setCouriers(cloudData.couriers);
-        if (Array.isArray(cloudData.clients) && cloudData.clients.length > 0) setClients(cloudData.clients);
-        if (Array.isArray(cloudData.products) && cloudData.products.length > 0) setProducts(cloudData.products);
-        if (Array.isArray(cloudData.orders)) setOrders(cloudData.orders);
-        if (Array.isArray(cloudData.transactions)) setTransactions(cloudData.transactions);
+
+        if (Array.isArray(cloudData.couriers) && cloudData.couriers.length > 0) {
+          setCouriers(cloudData.couriers);
+        } else if (activeBusinessId === "yogur-junin") {
+          setCouriers(INITIAL_MENSAJEROS);
+        }
+
+        if (Array.isArray(cloudData.clients) && cloudData.clients.length > 0) {
+          setClients(cloudData.clients);
+        } else if (activeBusinessId === "yogur-junin") {
+          setClients(INITIAL_CLIENTES);
+        }
+
+        if (Array.isArray(cloudData.products) && cloudData.products.length > 0) {
+          setProducts(cloudData.products);
+        } else if (activeBusinessId === "yogur-junin") {
+          setProducts(INITIAL_PRODUCTOS);
+        }
+
+        if (Array.isArray(cloudData.orders) && cloudData.orders.length > 0) {
+          setOrders(cloudData.orders);
+        } else if (activeBusinessId === "yogur-junin") {
+          setOrders(INITIAL_PEDIDOS);
+        }
+
+        if (Array.isArray(cloudData.transactions) && cloudData.transactions.length > 0) {
+          setTransactions(cloudData.transactions);
+        } else if (activeBusinessId === "yogur-junin") {
+          setTransactions(INITIAL_TRANSACCIONES);
+        }
 
         setTimeout(() => {
           isSyncingFromCloudRef.current = false;
