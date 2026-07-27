@@ -235,31 +235,31 @@ export default function App() {
 
         if (Array.isArray(cloudData.couriers) && cloudData.couriers.length > 0) {
           setCouriers(cloudData.couriers);
-        } else if (activeBusinessId === "yogur-junin") {
+        } else {
           setCouriers(INITIAL_MENSAJEROS);
         }
 
         if (Array.isArray(cloudData.clients) && cloudData.clients.length > 0) {
           setClients(cloudData.clients);
-        } else if (activeBusinessId === "yogur-junin") {
+        } else {
           setClients(INITIAL_CLIENTES);
         }
 
         if (Array.isArray(cloudData.products) && cloudData.products.length > 0) {
           setProducts(cloudData.products);
-        } else if (activeBusinessId === "yogur-junin") {
+        } else {
           setProducts(INITIAL_PRODUCTOS);
         }
 
         if (Array.isArray(cloudData.orders) && cloudData.orders.length > 0) {
           setOrders(cloudData.orders);
-        } else if (activeBusinessId === "yogur-junin") {
+        } else {
           setOrders(INITIAL_PEDIDOS);
         }
 
         if (Array.isArray(cloudData.transactions) && cloudData.transactions.length > 0) {
           setTransactions(cloudData.transactions);
-        } else if (activeBusinessId === "yogur-junin") {
+        } else {
           setTransactions(INITIAL_TRANSACCIONES);
         }
 

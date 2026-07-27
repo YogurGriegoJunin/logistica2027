@@ -504,6 +504,65 @@ export default function AdminPanel({
         </button>
       </div>
 
+      {/* Tarjetas Acceso Rápido a Funciones Principales */}
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: "0.75rem", marginBottom: "1rem" }}>
+        <div
+          className="glass-card role-card-hover"
+          style={{ padding: "0.85rem 1rem", cursor: "pointer", display: "flex", alignItems: "center", gap: "0.75rem", border: adminView === "deliveries" ? "1px solid var(--primary)" : "1px solid var(--border-color)", background: adminView === "deliveries" ? "rgba(139, 92, 246, 0.18)" : "rgba(255, 255, 255, 0.02)" }}
+          onClick={() => setAdminView("deliveries")}
+        >
+          <div style={{ background: "rgba(139, 92, 246, 0.2)", padding: "0.5rem", borderRadius: "10px" }}>
+            <PlusCircle size={22} color="var(--primary)" />
+          </div>
+          <div>
+            <strong style={{ fontSize: "0.88rem", color: "#fff", display: "block" }}>➕ Crear Nuevo Pedido</strong>
+            <span style={{ fontSize: "0.75rem", color: "var(--text-muted)" }}>Despachar viaje a cliente</span>
+          </div>
+        </div>
+
+        <div
+          className="glass-card role-card-hover"
+          style={{ padding: "0.85rem 1rem", cursor: "pointer", display: "flex", alignItems: "center", gap: "0.75rem", border: adminView === "couriers" ? "1px solid var(--primary)" : "1px solid var(--border-color)", background: adminView === "couriers" ? "rgba(139, 92, 246, 0.18)" : "rgba(255, 255, 255, 0.02)" }}
+          onClick={() => setAdminView("couriers")}
+        >
+          <div style={{ background: "rgba(59, 130, 246, 0.2)", padding: "0.5rem", borderRadius: "10px" }}>
+            <UserCheck size={22} color="var(--secondary)" />
+          </div>
+          <div>
+            <strong style={{ fontSize: "0.88rem", color: "#fff", display: "block" }}>🛵 Repartidores ({couriers.length})</strong>
+            <span style={{ fontSize: "0.75rem", color: "var(--text-muted)" }}>Crear y eliminar mensajeros</span>
+          </div>
+        </div>
+
+        <div
+          className="glass-card role-card-hover"
+          style={{ padding: "0.85rem 1rem", cursor: "pointer", display: "flex", alignItems: "center", gap: "0.75rem", border: adminView === "products" ? "1px solid var(--primary)" : "1px solid var(--border-color)", background: adminView === "products" ? "rgba(139, 92, 246, 0.18)" : "rgba(255, 255, 255, 0.02)" }}
+          onClick={() => setAdminView("products")}
+        >
+          <div style={{ background: "rgba(16, 185, 129, 0.2)", padding: "0.5rem", borderRadius: "10px" }}>
+            <Boxes size={22} color="var(--success)" />
+          </div>
+          <div>
+            <strong style={{ fontSize: "0.88rem", color: "#fff", display: "block" }}>📦 Catálogo ({products.length})</strong>
+            <span style={{ fontSize: "0.75rem", color: "var(--text-muted)" }}>Crear y eliminar artículos</span>
+          </div>
+        </div>
+
+        <div
+          className="glass-card role-card-hover"
+          style={{ padding: "0.85rem 1rem", cursor: "pointer", display: "flex", alignItems: "center", gap: "0.75rem", border: adminView === "settings" ? "1px solid var(--primary)" : "1px solid var(--border-color)", background: adminView === "settings" ? "rgba(139, 92, 246, 0.18)" : "rgba(255, 255, 255, 0.02)" }}
+          onClick={() => setAdminView("settings")}
+        >
+          <div style={{ background: "rgba(245, 158, 11, 0.2)", padding: "0.5rem", borderRadius: "10px" }}>
+            <Shield size={22} color="#FBBF24" />
+          </div>
+          <div>
+            <strong style={{ fontSize: "0.88rem", color: "#fff", display: "block" }}>🔑 Cambiar Contraseña</strong>
+            <span style={{ fontSize: "0.75rem", color: "var(--text-muted)" }}>Seguridad del Administrador</span>
+          </div>
+        </div>
+      </div>
+
       {adminView === "deliveries" && (
         <div style={styles.grid} className="animated-fade-in">
           {/* Formulario de Pedido */}
