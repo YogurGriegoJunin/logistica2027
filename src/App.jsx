@@ -188,8 +188,10 @@ export default function App() {
   });
   const [isCloudSyncing, setIsCloudSyncing] = useState(false);
   const lastCloudUpdatedAtRef = useRef(null);
+  const isSyncingFromCloudRef = useRef(false);
+  const cloudPushDebounceRef = useRef(null);
 
-  // Background Cloud Sync Pulling (Every 4 seconds)
+  // Background Cloud Sync Pulling (Every 5 seconds)
   useEffect(() => {
     let isMounted = true;
 
@@ -199,6 +201,7 @@ export default function App() {
 
       if (cloudData.updatedAt && cloudData.updatedAt !== lastCloudUpdatedAtRef.current) {
         lastCloudUpdatedAtRef.current = cloudData.updatedAt;
+        isSyncingFromCloudRef.current = true;
 
         if (cloudData.storeBase) setStoreBase(cloudData.storeBase);
         if (cloudData.adminPasswordHash) setAdminPasswordHash(cloudData.adminPasswordHash);
@@ -207,32 +210,44 @@ export default function App() {
         if (Array.isArray(cloudData.products) && cloudData.products.length > 0) setProducts(cloudData.products);
         if (Array.isArray(cloudData.orders)) setOrders(cloudData.orders);
         if (Array.isArray(cloudData.transactions)) setTransactions(cloudData.transactions);
+
+        setTimeout(() => {
+          isSyncingFromCloudRef.current = false;
+        }, 1000);
       }
     };
 
     pullFromCloud();
-    const interval = setInterval(pullFromCloud, 4000);
+    const interval = setInterval(pullFromCloud, 5000);
     return () => {
       isMounted = false;
       clearInterval(interval);
     };
   }, [cloudSyncId]);
 
-  // Helper to push updated states to Cloud
-  const triggerCloudPush = async (overrideState = {}) => {
-    setIsCloudSyncing(true);
-    const storePayload = {
-      storeBase: overrideState.storeBase || storeBase,
-      adminPasswordHash: overrideState.adminPasswordHash || adminPasswordHash,
-      couriers: overrideState.couriers || couriers,
-      clients: overrideState.clients || clients,
-      products: overrideState.products || products,
-      orders: overrideState.orders || orders,
-      transactions: overrideState.transactions || transactions
-    };
+  // Helper to push updated states to Cloud (Guarded & Debounced)
+  const triggerCloudPush = (overrideState = {}) => {
+    if (isSyncingFromCloudRef.current) return;
 
-    await pushStoreToCloud(storePayload, cloudSyncId);
-    setIsCloudSyncing(false);
+    if (cloudPushDebounceRef.current) {
+      clearTimeout(cloudPushDebounceRef.current);
+    }
+
+    cloudPushDebounceRef.current = setTimeout(async () => {
+      setIsCloudSyncing(true);
+      const storePayload = {
+        storeBase: overrideState.storeBase || storeBase,
+        adminPasswordHash: overrideState.adminPasswordHash || adminPasswordHash,
+        couriers: overrideState.couriers || couriers,
+        clients: overrideState.clients || clients,
+        products: overrideState.products || products,
+        orders: overrideState.orders || orders,
+        transactions: overrideState.transactions || transactions
+      };
+
+      await pushStoreToCloud(storePayload, cloudSyncId);
+      setIsCloudSyncing(false);
+    }, 1500);
   };
 
   // Persist states to localStorage & push to Cloud whenever they change locally
