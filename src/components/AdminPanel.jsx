@@ -428,62 +428,79 @@ export default function AdminPanel({
 
   return (
     <div style={styles.container}>
-      {/* Sub-Navegación Admin */}
-      <div style={styles.subTabs}>
+      {/* Header Bar con Sub-Tabs Responsivos y Restablecimiento Rápido */}
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: "0.75rem", background: "rgba(255, 255, 255, 0.02)", padding: "0.75rem 1rem", borderRadius: "14px", border: "1px solid var(--border-color)" }}>
+        <div style={{ display: "flex", flexWrap: "wrap", gap: "0.5rem" }}>
+          <button
+            className="btn"
+            style={{
+              ...styles.subTabBtn,
+              ...(adminView === "deliveries" ? styles.subTabBtnActive : {})
+            }}
+            onClick={() => setAdminView("deliveries")}
+          >
+            <Truck size={16} />
+            Despachos y Pedidos
+          </button>
+
+          <button
+            className="btn"
+            style={{
+              ...styles.subTabBtn,
+              ...(adminView === "clients" ? styles.subTabBtnActive : {})
+            }}
+            onClick={() => setAdminView("clients")}
+          >
+            <Users size={16} />
+            Clientes ({clients.length})
+          </button>
+
+          <button
+            className="btn"
+            style={{
+              ...styles.subTabBtn,
+              ...(adminView === "couriers" ? styles.subTabBtnActive : {})
+            }}
+            onClick={() => setAdminView("couriers")}
+          >
+            <UserCheck size={16} />
+            Repartidores ({couriers.length})
+          </button>
+
+          <button
+            className="btn"
+            style={{
+              ...styles.subTabBtn,
+              ...(adminView === "products" ? styles.subTabBtnActive : {})
+            }}
+            onClick={() => setAdminView("products")}
+          >
+            <Boxes size={16} />
+            Productos ({products.length})
+          </button>
+
+          <button
+            className="btn"
+            style={{
+              ...styles.subTabBtn,
+              ...(adminView === "settings" ? styles.subTabBtnActive : { background: "rgba(139, 92, 246, 0.2)", color: "#fff", borderColor: "var(--primary)" })
+            }}
+            onClick={() => setAdminView("settings")}
+          >
+            <Shield size={16} />
+            🔑 Configuración y Claves
+          </button>
+        </div>
+
         <button
-          className="btn"
-          style={{
-            ...styles.subTabBtn,
-            ...(adminView === "deliveries" ? styles.subTabBtnActive : {})
-          }}
-          onClick={() => setAdminView("deliveries")}
+          type="button"
+          className="btn btn-secondary"
+          style={{ fontSize: "0.8rem", gap: "0.4rem", padding: "0.4rem 0.75rem" }}
+          onClick={onResetFactory}
+          title="Recuperar productos, repartidores y pedidos iniciales"
         >
-          <Truck size={16} />
-          Despachos y Pedidos
-        </button>
-        <button
-          className="btn"
-          style={{
-            ...styles.subTabBtn,
-            ...(adminView === "clients" ? styles.subTabBtnActive : {})
-          }}
-          onClick={() => setAdminView("clients")}
-        >
-          <Users size={16} />
-          Directorio de Clientes
-        </button>
-        <button
-          className="btn"
-          style={{
-            ...styles.subTabBtn,
-            ...(adminView === "couriers" ? styles.subTabBtnActive : {})
-          }}
-          onClick={() => setAdminView("couriers")}
-        >
-          <UserCheck size={16} />
-          Gestión de Repartidores
-        </button>
-        <button
-          className="btn"
-          style={{
-            ...styles.subTabBtn,
-            ...(adminView === "products" ? styles.subTabBtnActive : {})
-          }}
-          onClick={() => setAdminView("products")}
-        >
-          <Boxes size={16} />
-          Catálogo de Productos
-        </button>
-        <button
-          className="btn"
-          style={{
-            ...styles.subTabBtn,
-            ...(adminView === "settings" ? styles.subTabBtnActive : {})
-          }}
-          onClick={() => setAdminView("settings")}
-        >
-          <Shield size={16} />
-          Configuración
+          <RotateCcw size={14} />
+          Restablecer Datos Iniciales
         </button>
       </div>
 
