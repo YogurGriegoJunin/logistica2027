@@ -76,35 +76,8 @@ export default function Navbar({
         </div>
       )}
 
-      {/* Logout Control, Business Switcher and Session Status */}
+      {/* Logout Control and Session Status */}
       <div style={styles.rightContainer}>
-        {businesses.length > 0 && userRole === "admin" && (
-          <div style={{ display: "flex", alignItems: "center", gap: "0.35rem" }}>
-            <Building size={14} color="var(--primary)" />
-            <select
-              style={{
-                background: "rgba(139, 92, 246, 0.15)",
-                border: "1px solid rgba(139, 92, 246, 0.3)",
-                color: "#fff",
-                fontSize: "0.78rem",
-                padding: "0.3rem 0.5rem",
-                borderRadius: "6px",
-                fontWeight: "600",
-                outline: "none",
-                cursor: "pointer"
-              }}
-              value={activeBusinessId}
-              onChange={(e) => onSwitchBusiness && onSwitchBusiness(e.target.value)}
-              title="Cambiar de Negocio / Empresa"
-            >
-              {businesses.map((biz) => (
-                <option key={biz.id} value={biz.id} style={{ background: "#111827", color: "#fff" }}>
-                  {biz.name}
-                </option>
-              ))}
-            </select>
-          </div>
-        )}
 
         <button
           type="button"

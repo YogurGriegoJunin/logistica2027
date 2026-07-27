@@ -156,13 +156,26 @@ export default function App() {
     try {
       localStorage.setItem("rapiconta_active_business_id", biz.id);
       localStorage.setItem("rapiconta_cloud_sync_id", biz.cloudSyncId);
-      if (biz.adminHash) {
-        localStorage.setItem("rapiconta_admin_pass_hash", biz.adminHash);
-        setAdminPasswordHash(biz.adminHash);
-      }
-      if (biz.storeBase) {
-        localStorage.setItem("rapiconta_store_base", JSON.stringify(biz.storeBase));
-        setStoreBase(biz.storeBase);
+
+      // Force session logout so user must authenticate into the selected business
+      localStorage.removeItem("rapiconta_user_role");
+      localStorage.removeItem("rapiconta_selected_courier_id");
+
+      if (biz.id === "yogur-junin") {
+        localStorage.setItem("rapiconta_admin_pass_hash", DEFAULT_ADMIN_HASH);
+        localStorage.setItem("rapiconta_store_base", JSON.stringify(TIENDA_BASE));
+        localStorage.setItem("rapiconta_couriers", JSON.stringify(INITIAL_MENSAJEROS));
+        localStorage.setItem("rapiconta_clients", JSON.stringify(INITIAL_CLIENTES));
+        localStorage.setItem("rapiconta_products", JSON.stringify(INITIAL_PRODUCTOS));
+        localStorage.setItem("rapiconta_orders", JSON.stringify(INITIAL_PEDIDOS));
+        localStorage.setItem("rapiconta_transactions", JSON.stringify(INITIAL_TRANSACCIONES));
+      } else {
+        if (biz.adminHash) {
+          localStorage.setItem("rapiconta_admin_pass_hash", biz.adminHash);
+        }
+        if (biz.storeBase) {
+          localStorage.setItem("rapiconta_store_base", JSON.stringify(biz.storeBase));
+        }
       }
     } catch (e) {}
 
@@ -170,6 +183,19 @@ export default function App() {
   };
 
   const handleCreateNewBusinessInApp = (newBizObj) => {
+    // Seed new business with initial operational catalog & sample couriers
+    const seededBizPayload = {
+      storeBase: newBizObj.storeBase,
+      adminPasswordHash: newBizObj.adminHash,
+      couriers: INITIAL_MENSAJEROS,
+      clients: INITIAL_CLIENTES,
+      products: INITIAL_PRODUCTOS,
+      orders: [],
+      transactions: []
+    };
+
+    pushStoreToCloud(seededBizPayload, newBizObj.cloudSyncId);
+
     setBusinesses((prev) => {
       const filtered = prev.filter((b) => b.id !== newBizObj.id);
       const updated = [...filtered, newBizObj];
