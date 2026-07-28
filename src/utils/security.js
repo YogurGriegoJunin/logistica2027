@@ -128,6 +128,7 @@ export async function hashPassword(plainText) {
 
 // Pre-computed SHA-256 hashes for default credentials
 export const DEFAULT_ADMIN_HASH = "240be518fabd2724ddb6f04eeb1da5967448d7e831c08c8fa822809f74c720a9"; // "admin123"
+export const DEFAULT_SUPERADMIN_HASH = "e34f92a20532a873cb3184398070b4b82a8fa29cf48572c203dc5f0fa6158231"; // "superadmin123"
 
 export const INITIAL_COURIER_HASHES = {
   m1: "0ee1289fe47095272532289f0932b32b4965b5719255b48b9f0260336d39cb60", // "1111"

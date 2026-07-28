@@ -37,6 +37,7 @@ export default function AdminPanel({
   onRestoreBackup,
   onResetFactory,
   onCreateOrder,
+  onDeleteOrder,
   onCreateClient,
   onDeleteClient,
   onCreateCourier,
@@ -45,7 +46,10 @@ export default function AdminPanel({
   onDeleteProduct,
   onAssignCourier,
   onUpdateStatus,
-  onChangeCourierPin
+  onChangeCourierPin,
+  isSuperAdmin = false,
+  businesses = [],
+  onDeleteBusiness
 }) {
   const [adminView, setAdminView] = useState("all"); // 'all' | 'deliveries' | 'clients' | 'couriers' | 'products' | 'settings'
 
@@ -430,6 +434,18 @@ export default function AdminPanel({
 
   return (
     <div style={styles.container}>
+      {isSuperAdmin && (
+        <div style={{ background: "linear-gradient(135deg, rgba(245, 158, 11, 0.25), rgba(217, 119, 6, 0.15))", border: "1px solid #FBBF24", borderRadius: "14px", padding: "0.85rem 1.25rem", marginBottom: "1rem", display: "flex", alignItems: "center", gap: "0.75rem" }}>
+          <Shield size={24} color="#FBBF24" />
+          <div>
+            <strong style={{ color: "#FBBF24", fontSize: "0.95rem", display: "block" }}>⚡ MODO SUPERADMINISTRADOR ACTIVO (PODER TOTAL)</strong>
+            <span style={{ fontSize: "0.8rem", color: "var(--text-muted)" }}>
+              Posees control maestro total para crear, modificar y eliminar cualquier registro: pedidos, empresas, repartidores, catálogo de productos y usuarios.
+            </span>
+          </div>
+        </div>
+      )}
+
       {/* Header Bar con Sub-Tabs Responsivos y Restablecimiento Rápido */}
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: "0.75rem", background: "rgba(255, 255, 255, 0.02)", padding: "0.75rem 1rem", borderRadius: "14px", border: "1px solid var(--border-color)" }}>
         <div style={{ display: "flex", flexWrap: "wrap", gap: "0.5rem" }}>
@@ -902,6 +918,22 @@ export default function AdminPanel({
                                 >
                                   Anular
                                 </button>
+
+                                {onDeleteOrder && (
+                                  <button
+                                    type="button"
+                                    className="btn btn-danger"
+                                    style={{ ...styles.actionBtn, padding: "0.3rem 0.5rem" }}
+                                    onClick={() => {
+                                      if (window.confirm(`¿Seguro que deseas ELIMINAR definitivamente el pedido #${order.id}?`)) {
+                                        onDeleteOrder(order.id);
+                                      }
+                                    }}
+                                    title="Eliminar pedido definitivamente"
+                                  >
+                                    <Trash2 size={13} />
+                                  </button>
+                                )}
                               </div>
                             </td>
                           </tr>
@@ -1479,6 +1511,53 @@ export default function AdminPanel({
               </button>
             </form>
           </div>
+
+          {/* Gestión de Empresas (Control SuperAdmin) */}
+          {businesses.length > 0 && onDeleteBusiness && (
+            <div className="glass-card" style={styles.formCard}>
+              <div style={styles.cardHeader}>
+                <Building size={20} color="var(--primary)" />
+                <h2>Gestión de Empresas Registradas ({businesses.length})</h2>
+              </div>
+
+              <div style={{ display: "flex", flexDirection: "column", gap: "0.75rem" }}>
+                {businesses.map((b) => (
+                  <div
+                    key={b.id}
+                    style={{
+                      display: "flex",
+                      justifyContent: "space-between",
+                      alignItems: "center",
+                      background: "rgba(255, 255, 255, 0.03)",
+                      padding: "0.75rem 1rem",
+                      borderRadius: "10px",
+                      border: "1px solid var(--border-color)"
+                    }}
+                  >
+                    <div>
+                      <strong style={{ fontSize: "0.9rem", color: "#fff", display: "block" }}>{b.name}</strong>
+                      <span style={{ fontSize: "0.75rem", color: "var(--text-muted)" }}>ID: {b.id}</span>
+                    </div>
+
+                    <button
+                      type="button"
+                      className="btn btn-danger"
+                      style={{ padding: "0.3rem 0.6rem", fontSize: "0.78rem", gap: "0.3rem" }}
+                      onClick={() => {
+                        if (window.confirm(`¿Seguro que deseas ELIMINAR la empresa "${b.name}"?`)) {
+                          onDeleteBusiness(b.id);
+                        }
+                      }}
+                      title="Eliminar empresa definitivamente"
+                    >
+                      <Trash2 size={13} />
+                      Eliminar
+                    </button>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
           {/* Cambiar Contraseña */}
           <div className="glass-card" style={styles.formCard}>
             <div style={styles.cardHeader}>

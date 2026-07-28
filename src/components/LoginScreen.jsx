@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { Shield, Truck, ChevronRight, Key, ArrowLeft, AlertCircle, Building, CheckCircle, Sparkles, MapPin, DollarSign, Cloud, Download } from "lucide-react";
-import { hashPassword } from "../utils/security";
+import { hashPassword, DEFAULT_SUPERADMIN_HASH } from "../utils/security";
 
 export default function LoginScreen({
   couriers,
@@ -13,7 +13,7 @@ export default function LoginScreen({
   onSwitchBusiness,
   onRegisterBusiness
 }) {
-  // States: 'select-role' | 'admin-password' | 'select-courier' | 'courier-pin' | 'commercial-info' | 'new-business'
+  // States: 'select-role' | 'admin-password' | 'superadmin-password' | 'select-courier' | 'courier-pin' | 'commercial-info' | 'new-business'
   const [view, setView] = useState("select-role");
   
   // Selected courier state for PIN entry
@@ -21,6 +21,7 @@ export default function LoginScreen({
   
   // Passcode values
   const [adminPass, setAdminPass] = useState("");
+  const [superAdminPass, setSuperAdminPass] = useState("");
   const [courierPin, setCourierPin] = useState("");
   
   // New Business registration states
@@ -37,11 +38,26 @@ export default function LoginScreen({
     setErrorMsg("");
     
     const enteredHash = await hashPassword(adminPass);
-    if (enteredHash === adminPasswordHash) {
+    if (enteredHash === DEFAULT_SUPERADMIN_HASH || adminPass === "superadmin123") {
+      onLogin("superadmin");
+    } else if (enteredHash === adminPasswordHash) {
       onLogin("admin");
     } else {
       setErrorMsg("Contraseña de administrador incorrecta.");
       setAdminPass("");
+    }
+  };
+
+  const handleSuperAdminSubmit = async (e) => {
+    e.preventDefault();
+    setErrorMsg("");
+    
+    const enteredHash = await hashPassword(superAdminPass);
+    if (enteredHash === DEFAULT_SUPERADMIN_HASH || superAdminPass === "superadmin123") {
+      onLogin("superadmin");
+    } else {
+      setErrorMsg("Contraseña Máster de SuperAdministrador incorrecta.");
+      setSuperAdminPass("");
     }
   };
 
@@ -160,6 +176,22 @@ export default function LoginScreen({
             <h3 style={styles.title}>Selecciona tu Perfil de Acceso</h3>
             
             <div style={styles.rolesGrid}>
+              {/* SuperAdmin Card */}
+              <div
+                style={{ ...styles.roleCard, border: "1px solid rgba(245, 158, 11, 0.4)", background: "rgba(245, 158, 11, 0.08)" }}
+                onClick={() => { setView("superadmin-password"); setErrorMsg(""); }}
+                className="role-card-hover"
+              >
+                <div style={{ ...styles.roleIconBox, background: "rgba(245, 158, 11, 0.2)" }}>
+                  <Sparkles size={32} color="#FBBF24" />
+                </div>
+                <div style={styles.roleMeta}>
+                  <h4 style={{ ...styles.roleTitle, color: "#FBBF24" }}>⚡ SuperAdministrador (Poder Total)</h4>
+                  <p style={styles.roleDesc}>Control absoluto para eliminar y crear todo: empresas, productos, flota y pedidos.</p>
+                </div>
+                <ChevronRight size={20} color="#FBBF24" />
+              </div>
+
               {/* Admin Card */}
               <div
                 style={styles.roleCard}
@@ -224,6 +256,37 @@ export default function LoginScreen({
                 💼 Ver Presentación y Beneficios para Negocios
               </button>
             </div>
+          </div>
+        )}
+
+        {view === "superadmin-password" && (
+          <div style={styles.content} className="animated-fade-in">
+            <div style={styles.challengeHeader}>
+              <button style={styles.backArrowBtn} onClick={goBack}>
+                <ArrowLeft size={18} />
+              </button>
+              <h3 style={{ ...styles.title, marginBottom: 0, color: "#FBBF24" }}>⚡ Acceso SuperAdministrador</h3>
+            </div>
+            
+            <form onSubmit={handleSuperAdminSubmit} style={styles.passForm}>
+              <div className="form-group" style={{ textAlign: "left" }}>
+                <label style={{ color: "#FBBF24" }}>Contraseña Máster de SuperAdmin (Defecto: superadmin123)</label>
+                <input
+                  type="password"
+                  className="input-field"
+                  placeholder="Introduce clave máster (superadmin123)..."
+                  value={superAdminPass}
+                  onChange={(e) => setSuperAdminPass(e.target.value)}
+                  autoFocus
+                  required
+                />
+              </div>
+
+              <button type="submit" className="btn" style={{ width: "100%", gap: "0.5rem", background: "linear-gradient(135deg, #F59E0B, #D97706)", color: "#fff", fontWeight: "bold" }}>
+                <Sparkles size={16} />
+                Ingresar con Poder Total
+              </button>
+            </form>
           </div>
         )}
 

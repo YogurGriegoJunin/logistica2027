@@ -699,6 +699,25 @@ export default function App() {
     );
   };
 
+  const handleDeleteOrder = (orderId) => {
+    setOrders((prev) => prev.filter((o) => o.id !== orderId));
+  };
+
+  const handleDeleteBusiness = (targetBizId) => {
+    if (businesses.length <= 1) {
+      alert("No se puede eliminar la única empresa existente.");
+      return;
+    }
+    const updated = businesses.filter((b) => b.id !== targetBizId);
+    setBusinesses(updated);
+    try {
+      localStorage.setItem("rapiconta_business_list", JSON.stringify(updated));
+    } catch (e) {}
+    if (activeBusinessId === targetBizId) {
+      handleSwitchBusiness(updated[0].id);
+    }
+  };
+
   const handleLogin = (role, courierId = null) => {
     setUserRole(role);
     try {
@@ -712,7 +731,7 @@ export default function App() {
         localStorage.setItem("rapiconta_active_tab", "courier");
         localStorage.setItem("rapiconta_selected_courier_id", courierId);
       } catch (e) {}
-    } else if (role === "admin") {
+    } else if (role === "admin" || role === "superadmin") {
       setActiveTab("admin");
       try {
         localStorage.setItem("rapiconta_active_tab", "admin");
@@ -741,6 +760,7 @@ export default function App() {
         businesses={businesses}
         activeBusinessId={activeBusinessId}
         onSwitchBusiness={handleSwitchBusiness}
+        onRegisterBusiness={handleCreateNewBusinessInApp}
       />
     );
   }
@@ -764,7 +784,11 @@ export default function App() {
         {/* Map Toggle & Quick Action Bar */}
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1rem" }}>
           <span style={{ fontSize: "0.9rem", fontWeight: "700", color: "#fff", display: "flex", alignItems: "center", gap: "0.4rem" }}>
-            {userRole === "admin" ? "🛠️ Consola de Administración Operativa" : "🛵 Portal de Repartidor"}
+            {userRole === "superadmin"
+              ? "⚡ SuperAdministrador (Control Total)"
+              : userRole === "admin"
+              ? "🛠️ Consola de Administración Operativa"
+              : "🛵 Portal de Repartidor"}
           </span>
 
           <button
@@ -787,8 +811,9 @@ export default function App() {
           />
         )}
 
-        {userRole === "admin" && activeTab !== "accounting" && (
+        {(userRole === "admin" || userRole === "superadmin") && activeTab !== "accounting" && (
           <AdminPanel
+            isSuperAdmin={userRole === "superadmin"}
             orders={orders}
             couriers={couriers}
             clients={clients}
@@ -801,6 +826,7 @@ export default function App() {
             onRestoreBackup={handleRestoreBackup}
             onResetFactory={handleResetFactory}
             onCreateOrder={handleCreateOrder}
+            onDeleteOrder={handleDeleteOrder}
             onCreateClient={handleCreateClient}
             onDeleteClient={handleDeleteClient}
             onCreateCourier={handleCreateCourier}
@@ -810,6 +836,8 @@ export default function App() {
             onAssignCourier={handleAssignCourier}
             onUpdateStatus={handleUpdateStatus}
             onChangeCourierPin={handleChangeCourierPin}
+            businesses={businesses}
+            onDeleteBusiness={handleDeleteBusiness}
           />
         )}
 
