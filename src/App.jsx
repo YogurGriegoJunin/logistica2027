@@ -18,6 +18,22 @@ import {
 import { DEFAULT_ADMIN_HASH } from "./utils/security";
 import { fetchStoreFromCloud, pushStoreToCloud, DEFAULT_CLOUD_BLOB_ID } from "./utils/cloudSync";
 
+const APP_VERSION = "2027.1.0";
+
+// Auto-purge stale browser cache when a new version is released
+try {
+  const savedVersion = localStorage.getItem("rapiconta_app_version");
+  if (savedVersion !== APP_VERSION) {
+    // Preserve business list if present
+    const bizList = localStorage.getItem("rapiconta_business_list");
+    localStorage.clear();
+    localStorage.setItem("rapiconta_app_version", APP_VERSION);
+    if (bizList) {
+      localStorage.setItem("rapiconta_business_list", bizList);
+    }
+  }
+} catch (e) {}
+
 export default function App() {
   const [showMap, setShowMap] = useState(true);
   const [userRole, setUserRole] = useState(() => {
