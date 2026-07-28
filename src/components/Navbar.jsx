@@ -21,7 +21,9 @@ export default function Navbar({
         <div>
           <h1 style={styles.title}>LogiExpress SaaS</h1>
           <span style={styles.subtitle}>
-            {userRole === "admin" ? "Consola de Despacho & Control" : "Portal de Cadetes"}
+            {(userRole === "admin" || userRole === "superadmin")
+              ? (userRole === "superadmin" ? "⚡ SuperAdmin (Control Total)" : "Consola de Despacho & Control")
+              : "Portal de Cadetes"}
           </span>
         </div>
 
@@ -50,7 +52,7 @@ export default function Navbar({
       </div>
 
       {/* Conditional Navigation Tabs */}
-      {userRole === "admin" && (
+      {(userRole === "admin" || userRole === "superadmin") && (
         <nav style={styles.nav} className="animated-fade-in">
           <button
             className="btn"

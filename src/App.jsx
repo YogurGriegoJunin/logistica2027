@@ -909,7 +909,7 @@ export default function App() {
           />
         )}
 
-        {userRole === "admin" && activeTab === "accounting" && (
+        {(userRole === "admin" || userRole === "superadmin") && activeTab === "accounting" && (
           <AccountingPanel
             orders={orders}
             couriers={couriers}
