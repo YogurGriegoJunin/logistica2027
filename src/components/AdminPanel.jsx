@@ -508,7 +508,7 @@ export default function AdminPanel({
       </div>
 
       {/* Tarjetas Acceso Rápido a Funciones Principales */}
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: "0.75rem", marginBottom: "1rem" }}>
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))", gap: "0.75rem", marginBottom: "1rem" }}>
         <div
           className="glass-card role-card-hover"
           style={{ padding: "0.85rem 1rem", cursor: "pointer", display: "flex", alignItems: "center", gap: "0.75rem", border: adminView === "deliveries" ? "1px solid var(--primary)" : "1px solid var(--border-color)", background: adminView === "deliveries" ? "rgba(139, 92, 246, 0.18)" : "rgba(255, 255, 255, 0.02)" }}
@@ -518,8 +518,8 @@ export default function AdminPanel({
             <PlusCircle size={22} color="var(--primary)" />
           </div>
           <div>
-            <strong style={{ fontSize: "0.88rem", color: "#fff", display: "block" }}>➕ Crear Nuevo Pedido</strong>
-            <span style={{ fontSize: "0.75rem", color: "var(--text-muted)" }}>Despachar viaje a cliente</span>
+            <strong style={{ fontSize: "0.88rem", color: "#fff", display: "block" }}>➕ Crear Pedido</strong>
+            <span style={{ fontSize: "0.75rem", color: "var(--text-muted)" }}>Despachar viaje</span>
           </div>
         </div>
 
@@ -533,7 +533,7 @@ export default function AdminPanel({
           </div>
           <div>
             <strong style={{ fontSize: "0.88rem", color: "#fff", display: "block" }}>🛵 Repartidores ({couriers.length})</strong>
-            <span style={{ fontSize: "0.75rem", color: "var(--text-muted)" }}>Crear y eliminar mensajeros</span>
+            <span style={{ fontSize: "0.75rem", color: "var(--text-muted)" }}>Crear / Claves</span>
           </div>
         </div>
 
@@ -547,7 +547,7 @@ export default function AdminPanel({
           </div>
           <div>
             <strong style={{ fontSize: "0.88rem", color: "#fff", display: "block" }}>📦 Catálogo ({products.length})</strong>
-            <span style={{ fontSize: "0.75rem", color: "var(--text-muted)" }}>Crear y eliminar artículos</span>
+            <span style={{ fontSize: "0.75rem", color: "var(--text-muted)" }}>Crear / Eliminar</span>
           </div>
         </div>
 
@@ -560,8 +560,22 @@ export default function AdminPanel({
             <Shield size={22} color="#FBBF24" />
           </div>
           <div>
-            <strong style={{ fontSize: "0.88rem", color: "#fff", display: "block" }}>🔑 Cambiar Contraseña</strong>
-            <span style={{ fontSize: "0.75rem", color: "var(--text-muted)" }}>Seguridad del Administrador</span>
+            <strong style={{ fontSize: "0.88rem", color: "#fff", display: "block" }}>🔑 Cambiar Clave</strong>
+            <span style={{ fontSize: "0.75rem", color: "var(--text-muted)" }}>Seguridad Admin</span>
+          </div>
+        </div>
+
+        <div
+          className="glass-card role-card-hover"
+          style={{ padding: "0.85rem 1rem", cursor: "pointer", display: "flex", alignItems: "center", gap: "0.75rem", border: adminView === "settings" ? "1px solid var(--primary)" : "1px solid var(--border-color)", background: adminView === "settings" ? "rgba(139, 92, 246, 0.18)" : "rgba(255, 255, 255, 0.02)" }}
+          onClick={() => setAdminView("settings")}
+        >
+          <div style={{ background: "rgba(16, 185, 129, 0.2)", padding: "0.5rem", borderRadius: "10px" }}>
+            <Download size={22} color="var(--success)" />
+          </div>
+          <div>
+            <strong style={{ fontSize: "0.88rem", color: "#fff", display: "block" }}>💾 Backup & Restore</strong>
+            <span style={{ fontSize: "0.75rem", color: "var(--text-muted)" }}>Respaldar / Restaurar</span>
           </div>
         </div>
       </div>
