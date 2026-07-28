@@ -83,6 +83,30 @@ export default function Navbar({
           type="button"
           className="btn"
           style={{
+            background: "rgba(59, 130, 246, 0.12)",
+            border: "1px solid rgba(59, 130, 246, 0.3)",
+            color: "var(--secondary)",
+            fontSize: "0.75rem",
+            padding: "0.3rem 0.5rem",
+            gap: "0.3rem",
+            display: "flex",
+            alignItems: "center"
+          }}
+          onClick={() => {
+            if (window.confirm("¿Deseas recargar la app con la versión más reciente enviada a GitHub?")) {
+              window.location.reload(true);
+            }
+          }}
+          title="Forzar actualización de la aplicación desde la web"
+        >
+          <RefreshCw size={13} />
+          Actualizar Web
+        </button>
+
+        <button
+          type="button"
+          className="btn"
+          style={{
             background: "rgba(16, 185, 129, 0.12)",
             border: "1px solid rgba(16, 185, 129, 0.3)",
             color: "var(--success)",
