@@ -19,7 +19,8 @@ import {
   AlertCircle,
   Download,
   Upload,
-  RotateCcw
+  RotateCcw,
+  Key
 } from "lucide-react";
 import { hashPassword } from "../utils/security";
 
