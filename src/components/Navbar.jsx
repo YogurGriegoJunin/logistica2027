@@ -1,5 +1,5 @@
 import React from "react";
-import { Shield, Truck, DollarSign, Activity, LogOut, User, Cloud, RefreshCw, Building } from "lucide-react";
+import { Shield, Truck, DollarSign, Activity, LogOut, Cloud, Sparkles, Store } from "lucide-react";
 
 export default function Navbar({
   userRole,
@@ -9,9 +9,7 @@ export default function Navbar({
   onLogout,
   isSyncing,
   onManualSync,
-  businesses = [],
-  activeBusinessId,
-  onSwitchBusiness
+  onOpenLanding
 }) {
   return (
     <header style={styles.header}>
@@ -21,11 +19,34 @@ export default function Navbar({
           <Activity size={22} color="#fff" />
         </div>
         <div>
-          <h1 style={styles.title}>RapiConta</h1>
+          <h1 style={styles.title}>LogiExpress SaaS</h1>
           <span style={styles.subtitle}>
-            {userRole === "admin" ? "Consola de Administración" : "Portal de Entregas"}
+            {userRole === "admin" ? "Consola de Despacho & Control" : "Portal de Cadetes"}
           </span>
         </div>
+
+        <button
+          type="button"
+          onClick={onOpenLanding}
+          style={{
+            marginLeft: "12px",
+            background: "linear-gradient(135deg, rgba(99,102,241,0.2), rgba(168,85,247,0.2))",
+            border: "1px solid rgba(168,85,247,0.4)",
+            color: "#c084fc",
+            padding: "4px 10px",
+            borderRadius: "999px",
+            fontSize: "0.75rem",
+            fontWeight: "600",
+            cursor: "pointer",
+            display: "flex",
+            alignItems: "center",
+            gap: "5px"
+          }}
+          title="Ver Landing Comercial de Ventas y Planes de Suscripción"
+        >
+          <Sparkles size={13} />
+          Portal Ventas / Plan Pro ($49/mo)
+        </button>
       </div>
 
       {/* Conditional Navigation Tabs */}
@@ -40,7 +61,7 @@ export default function Navbar({
             onClick={() => setActiveTab("admin")}
           >
             <Shield size={18} />
-            Administración
+            Administración & Despacho
           </button>
 
           <button
@@ -52,7 +73,7 @@ export default function Navbar({
             onClick={() => setActiveTab("accounting")}
           >
             <DollarSign size={18} />
-            Contabilidad
+            Contabilidad & Caja
           </button>
         </nav>
       )}
@@ -71,14 +92,13 @@ export default function Navbar({
             {selectedCourier.avatar}
           </span>
           <span style={styles.courierBannerText}>
-            Sesión: <strong>{selectedCourier.nombre}</strong> (Repartidor)
+            Sesión Cadete: <strong>{selectedCourier.nombre}</strong>
           </span>
         </div>
       )}
 
       {/* Logout Control and Session Status */}
       <div style={styles.rightContainer}>
-
         <button
           type="button"
           className="btn"
@@ -93,7 +113,7 @@ export default function Navbar({
             alignItems: "center"
           }}
           onClick={onManualSync}
-          title="Nube Sincronizada en Tiempo Real (Clic para sincronizar ya)"
+          title="Nube Sincronizada en Tiempo Real"
         >
           <Cloud size={14} />
           {isSyncing ? "Sincronizando..." : "Nube Activa"}
@@ -114,8 +134,8 @@ const styles = {
     display: "flex",
     alignItems: "center",
     justifyContent: "space-between",
-    padding: "0 2rem",
-    background: "rgba(10, 14, 23, 0.75)",
+    padding: "0 1.5rem",
+    background: "rgba(10, 14, 23, 0.85)",
     backdropFilter: "var(--glass-blur)",
     WebkitBackdropFilter: "var(--glass-blur)",
     borderBottom: "1px solid var(--border-color)",
@@ -127,7 +147,7 @@ const styles = {
   brandContainer: {
     display: "flex",
     alignItems: "center",
-    gap: "0.85rem"
+    gap: "0.75rem"
   },
   logoIcon: {
     width: "36px",
@@ -140,7 +160,7 @@ const styles = {
     boxShadow: "0 0 15px rgba(139, 92, 246, 0.4)"
   },
   title: {
-    fontSize: "1.25rem",
+    fontSize: "1.15rem",
     fontWeight: "800",
     color: "#fff",
     background: "linear-gradient(135deg, #fff, #a78bfa)",
@@ -148,7 +168,7 @@ const styles = {
     WebkitTextFillColor: "transparent"
   },
   subtitle: {
-    fontSize: "0.75rem",
+    fontSize: "0.72rem",
     color: "var(--text-muted)",
     display: "block",
     marginTop: "-2px"
@@ -162,9 +182,12 @@ const styles = {
     border: "1px solid transparent",
     color: "var(--text-muted)",
     padding: "0.5rem 1rem",
-    fontSize: "0.9rem",
+    fontSize: "0.88rem",
     borderRadius: "10px",
-    transition: "var(--transition-smooth)"
+    transition: "var(--transition-smooth)",
+    display: "flex",
+    alignItems: "center",
+    gap: "6px"
   },
   navBtnActive: {
     background: "rgba(255, 255, 255, 0.05)",
@@ -188,27 +211,18 @@ const styles = {
   rightContainer: {
     display: "flex",
     alignItems: "center",
-    gap: "1rem"
+    gap: "0.75rem"
   },
   logoutBtn: {
-    padding: "0.45rem 1rem",
-    fontSize: "0.85rem",
+    padding: "0.45rem 0.9rem",
+    fontSize: "0.82rem",
     borderRadius: "10px",
     background: "rgba(239, 68, 68, 0.08)",
     border: "1px solid rgba(239, 68, 68, 0.2)",
     color: "var(--danger)",
-    transition: "var(--transition-smooth)"
+    transition: "var(--transition-smooth)",
+    display: "flex",
+    alignItems: "center",
+    gap: "6px"
   }
 };
-
-// Injection of hover selector style overrides for the logout button
-if (typeof document !== "undefined") {
-  const style = document.createElement("style");
-  style.innerHTML = `
-    .btn-secondary:hover {
-      background: rgba(239, 68, 68, 0.15) !important;
-      border-color: rgba(239, 68, 68, 0.35) !important;
-    }
-  `;
-  document.head.appendChild(style);
-}

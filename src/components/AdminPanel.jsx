@@ -20,9 +20,13 @@ import {
   Download,
   Upload,
   RotateCcw,
-  Key
+  Key,
+  Printer,
+  MessageSquare
 } from "lucide-react";
 import { hashPassword } from "../utils/security";
+import ThermalTicketModal from "./ThermalTicketModal";
+import ExportReportButton from "./ExportReportButton";
 
 export default function AdminPanel({
   orders,
@@ -52,6 +56,7 @@ export default function AdminPanel({
   onDeleteBusiness
 }) {
   const [adminView, setAdminView] = useState("all"); // 'all' | 'deliveries' | 'clients' | 'couriers' | 'products' | 'settings'
+  const [ticketModalOrder, setTicketModalOrder] = useState(null);
 
   // --- Base Location State ---
   const [baseNombre, setBaseNombre] = useState(storeBase?.nombre || "Yogur Griego Junín - Base Central");
@@ -800,9 +805,12 @@ export default function AdminPanel({
 
           {/* Lista de Pedidos Activos */}
           <div className="glass-card" style={styles.listCard}>
-            <div style={styles.cardHeader}>
-              <Truck size={20} color="var(--secondary)" />
-              <h2>Monitoreo de Entregas Activas</h2>
+            <div style={{ ...styles.cardHeader, justifyContent: "space-between", alignItems: "center" }}>
+              <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
+                <Truck size={20} color="var(--secondary)" />
+                <h2>Monitoreo de Entregas Activas</h2>
+              </div>
+              <ExportReportButton orders={orders} transactions={transactions} storeName={storeBase?.nombre} />
             </div>
 
             <div className="table-container">
@@ -890,6 +898,28 @@ export default function AdminPanel({
                             </td>
                             <td>
                               <div style={{ display: "flex", gap: "0.4rem" }}>
+                                <button
+                                  type="button"
+                                  className="btn btn-secondary"
+                                  style={{ ...styles.actionBtn, padding: "0.3rem 0.5rem", backgroundColor: "rgba(99, 102, 241, 0.2)", color: "#a5b4fc" }}
+                                  onClick={() => setTicketModalOrder(order)}
+                                  title="Imprimir comanda térmica (58mm/80mm)"
+                                >
+                                  <Printer size={14} />
+                                </button>
+
+                                <button
+                                  type="button"
+                                  className="btn btn-secondary"
+                                  style={{ ...styles.actionBtn, padding: "0.3rem 0.5rem", backgroundColor: "rgba(16, 185, 129, 0.2)", color: "#34d399" }}
+                                  onClick={() => {
+                                    const text = encodeURIComponent(`Hola ${order.cliente}! Tu pedido #${order.id} por $${(order.valor || 0).toLocaleString()} ya está registrado y en proceso. Muchas gracias!`);
+                                    window.open(`https://wa.me/?text=${text}`, "_blank");
+                                  }}
+                                  title="Notificar por WhatsApp al cliente"
+                                >
+                                  <MessageSquare size={14} />
+                                </button>
                                 {order.estado === "pendiente" && order.mensajeroId && (
                                   <button
                                     className="btn btn-secondary"
@@ -1671,6 +1701,14 @@ export default function AdminPanel({
             </div>
           </div>
         </div>
+      )}
+
+      {ticketModalOrder && (
+        <ThermalTicketModal
+          pedido={ticketModalOrder}
+          tienda={storeBase}
+          onClose={() => setTicketModalOrder(null)}
+        />
       )}
     </div>
   );

@@ -5,6 +5,8 @@ import AdminPanel from "./components/AdminPanel";
 import CourierPanel from "./components/CourierPanel";
 import AccountingPanel from "./components/AccountingPanel";
 import LoginScreen from "./components/LoginScreen";
+import CommercialLanding from "./components/CommercialLanding";
+import MerchantOnboardingModal from "./components/MerchantOnboardingModal";
 
 import {
   INITIAL_PRODUCTOS,
@@ -35,6 +37,8 @@ try {
 } catch (e) {}
 
 export default function App() {
+  const [showLanding, setShowLanding] = useState(false);
+  const [showOnboarding, setShowOnboarding] = useState(false);
   const [showMap, setShowMap] = useState(true);
   const [userRole, setUserRole] = useState(() => {
     try {
@@ -749,19 +753,60 @@ export default function App() {
     );
   };
 
+  if (showLanding) {
+    return (
+      <>
+        <CommercialLanding
+          onStartDemo={() => {
+            setShowLanding(false);
+            setUserRole("admin");
+          }}
+          onOpenOnboarding={() => setShowOnboarding(true)}
+        />
+        <MerchantOnboardingModal
+          isOpen={showOnboarding}
+          onClose={() => setShowOnboarding(false)}
+          onComplete={(formData) => {
+            if (handleCreateNewBusinessInApp) {
+              handleCreateNewBusinessInApp(formData.nombre);
+            }
+            setShowOnboarding(false);
+            setShowLanding(false);
+            setUserRole("admin");
+          }}
+        />
+      </>
+    );
+  }
+
   if (userRole === null) {
     return (
-      <LoginScreen
-        couriers={couriers}
-        adminPasswordHash={adminPasswordHash}
-        onLogin={handleLogin}
-        storeBase={storeBase}
-        onUpdateStoreBase={handleUpdateStoreBase}
-        businesses={businesses}
-        activeBusinessId={activeBusinessId}
-        onSwitchBusiness={handleSwitchBusiness}
-        onRegisterBusiness={handleCreateNewBusinessInApp}
-      />
+      <>
+        <LoginScreen
+          couriers={couriers}
+          adminPasswordHash={adminPasswordHash}
+          onLogin={handleLogin}
+          storeBase={storeBase}
+          onUpdateStoreBase={handleUpdateStoreBase}
+          businesses={businesses}
+          activeBusinessId={activeBusinessId}
+          onSwitchBusiness={handleSwitchBusiness}
+          onRegisterBusiness={(bName) => {
+            setShowOnboarding(true);
+          }}
+        />
+        <MerchantOnboardingModal
+          isOpen={showOnboarding}
+          onClose={() => setShowOnboarding(false)}
+          onComplete={(formData) => {
+            if (handleCreateNewBusinessInApp) {
+              handleCreateNewBusinessInApp(formData.nombre);
+            }
+            setShowOnboarding(false);
+            setUserRole("admin");
+          }}
+        />
+      </>
     );
   }
 
@@ -778,6 +823,7 @@ export default function App() {
         businesses={businesses}
         activeBusinessId={activeBusinessId}
         onSwitchBusiness={handleSwitchBusiness}
+        onOpenLanding={() => setShowLanding(true)}
       />
 
       <main className="main-content">
@@ -785,20 +831,31 @@ export default function App() {
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1rem" }}>
           <span style={{ fontSize: "0.9rem", fontWeight: "700", color: "#fff", display: "flex", alignItems: "center", gap: "0.4rem" }}>
             {userRole === "superadmin"
-              ? "⚡ SuperAdministrador (Control Total)"
+              ? "⚡ SuperAdministrador (Control Total SaaS)"
               : userRole === "admin"
               ? "🛠️ Consola de Administración Operativa"
-              : "🛵 Portal de Repartidor"}
+              : "🛵 Portal de Cadete / Repartidor"}
           </span>
 
-          <button
-            type="button"
-            className="btn btn-secondary"
-            style={{ fontSize: "0.8rem", padding: "0.4rem 0.8rem", gap: "0.4rem", background: "rgba(59, 130, 246, 0.15)", borderColor: "rgba(59, 130, 246, 0.3)", color: "var(--secondary)" }}
-            onClick={() => setShowMap(!showMap)}
-          >
-            🗺️ {showMap ? "Ocultar Mapa Radar GPS" : "Mostrar Mapa Radar GPS"}
-          </button>
+          <div style={{ display: "flex", gap: "0.5rem" }}>
+            <button
+              type="button"
+              className="btn btn-secondary"
+              style={{ fontSize: "0.8rem", padding: "0.4rem 0.8rem", gap: "0.4rem", background: "rgba(168, 85, 247, 0.15)", borderColor: "rgba(168, 85, 247, 0.3)", color: "#c084fc" }}
+              onClick={() => setShowLanding(true)}
+            >
+              ✨ Ver Landing Comercial / Suscripciones
+            </button>
+
+            <button
+              type="button"
+              className="btn btn-secondary"
+              style={{ fontSize: "0.8rem", padding: "0.4rem 0.8rem", gap: "0.4rem", background: "rgba(59, 130, 246, 0.15)", borderColor: "rgba(59, 130, 246, 0.3)", color: "var(--secondary)" }}
+              onClick={() => setShowMap(!showMap)}
+            >
+              🗺️ {showMap ? "Ocultar Mapa Radar GPS" : "Mostrar Mapa Radar GPS"}
+            </button>
+          </div>
         </div>
 
         {/* Render Map conditionally */}
@@ -861,6 +918,19 @@ export default function App() {
           />
         )}
       </main>
+
+      <MerchantOnboardingModal
+        isOpen={showOnboarding}
+        onClose={() => setShowOnboarding(false)}
+        onComplete={(formData) => {
+          if (handleCreateNewBusinessInApp) {
+            handleCreateNewBusinessInApp(formData.nombre);
+          }
+          setShowOnboarding(false);
+          setShowLanding(false);
+          setUserRole("admin");
+        }}
+      />
     </div>
   );
 }
