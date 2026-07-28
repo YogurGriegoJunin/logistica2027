@@ -505,17 +505,6 @@ export default function AdminPanel({
             🔑 Claves y Configuración
           </button>
         </div>
-
-        <button
-          type="button"
-          className="btn btn-secondary"
-          style={{ fontSize: "0.8rem", gap: "0.4rem", padding: "0.4rem 0.75rem" }}
-          onClick={onResetFactory}
-          title="Recuperar productos, repartidores y pedidos iniciales"
-        >
-          <RotateCcw size={14} />
-          Restablecer Datos Iniciales
-        </button>
       </div>
 
       {/* Tarjetas Acceso Rápido a Funciones Principales */}
