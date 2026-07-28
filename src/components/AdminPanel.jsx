@@ -46,7 +46,7 @@ export default function AdminPanel({
   onUpdateStatus,
   onChangeCourierPin
 }) {
-  const [adminView, setAdminView] = useState("deliveries"); // 'deliveries' | 'clients' | 'couriers' | 'products' | 'settings'
+  const [adminView, setAdminView] = useState("all"); // 'all' | 'deliveries' | 'clients' | 'couriers' | 'products' | 'settings'
 
   // --- Base Location State ---
   const [baseNombre, setBaseNombre] = useState(storeBase?.nombre || "Yogur Griego Junín - Base Central");
@@ -436,6 +436,18 @@ export default function AdminPanel({
             className="btn"
             style={{
               ...styles.subTabBtn,
+              ...(adminView === "all" ? styles.subTabBtnActive : { background: "rgba(139, 92, 246, 0.2)", color: "#fff", borderColor: "var(--primary)" })
+            }}
+            onClick={() => setAdminView("all")}
+          >
+            <Activity size={16} />
+            Vista Completa (Todo)
+          </button>
+
+          <button
+            className="btn"
+            style={{
+              ...styles.subTabBtn,
               ...(adminView === "deliveries" ? styles.subTabBtnActive : {})
             }}
             onClick={() => setAdminView("deliveries")}
@@ -484,12 +496,12 @@ export default function AdminPanel({
             className="btn"
             style={{
               ...styles.subTabBtn,
-              ...(adminView === "settings" ? styles.subTabBtnActive : { background: "rgba(139, 92, 246, 0.2)", color: "#fff", borderColor: "var(--primary)" })
+              ...(adminView === "settings" ? styles.subTabBtnActive : {})
             }}
             onClick={() => setAdminView("settings")}
           >
             <Shield size={16} />
-            🔑 Configuración y Claves
+            🔑 Claves y Configuración
           </button>
         </div>
 
@@ -564,7 +576,7 @@ export default function AdminPanel({
         </div>
       </div>
 
-      {adminView === "deliveries" && (
+      {(adminView === "all" || adminView === "deliveries") && (
         <div style={styles.grid} className="animated-fade-in">
           {/* Formulario de Pedido */}
           <div className="glass-card" style={styles.formCard}>
@@ -899,7 +911,7 @@ export default function AdminPanel({
         </div>
       )}
 
-      {adminView === "clients" && (
+      {(adminView === "all" || adminView === "clients") && (
         <div style={styles.grid} className="animated-fade-in">
           {/* Registrar Cliente */}
           <div className="glass-card" style={styles.formCard}>
@@ -1046,7 +1058,7 @@ export default function AdminPanel({
         </div>
       )}
 
-      {adminView === "couriers" && (
+      {(adminView === "all" || adminView === "couriers") && (
         <div style={styles.grid} className="animated-fade-in">
           {/* Registrar Repartidor */}
           <div className="glass-card" style={styles.formCard}>
@@ -1238,7 +1250,7 @@ export default function AdminPanel({
         </div>
       )}
 
-      {adminView === "products" && (
+      {(adminView === "all" || adminView === "products") && (
         <div style={styles.grid} className="animated-fade-in">
           {/* Registrar Producto */}
           <div className="glass-card" style={styles.formCard}>
@@ -1378,7 +1390,7 @@ export default function AdminPanel({
         </div>
       )}
 
-      {adminView === "settings" && (
+      {(adminView === "all" || adminView === "settings") && (
         <div style={styles.grid} className="animated-fade-in">
           {/* Configuración de Punto de Base Central */}
           <div className="glass-card" style={styles.formCard}>
