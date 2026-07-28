@@ -43,7 +43,8 @@ export default function AdminPanel({
   onCreateProduct,
   onDeleteProduct,
   onAssignCourier,
-  onUpdateStatus
+  onUpdateStatus,
+  onChangeCourierPin
 }) {
   const [adminView, setAdminView] = useState("deliveries"); // 'deliveries' | 'clients' | 'couriers' | 'products' | 'settings'
 
@@ -1190,19 +1191,43 @@ export default function AdminPanel({
                         ${c.gastosAcumulados.toLocaleString()}
                       </td>
                       <td>
-                        <button
-                          type="button"
-                          className="btn btn-danger"
-                          style={{ padding: "0.25rem 0.5rem" }}
-                          onClick={() => {
-                            if (window.confirm(`¿Seguro que deseas eliminar al repartidor ${c.nombre}?`)) {
-                              onDeleteCourier(c.id);
-                            }
-                          }}
-                          title="Eliminar repartidor"
-                        >
-                          <Trash2 size={13} />
-                        </button>
+                        <div style={{ display: "flex", gap: "0.4rem" }}>
+                          <button
+                            type="button"
+                            className="btn btn-secondary"
+                            style={{ padding: "0.25rem 0.5rem", fontSize: "0.75rem", gap: "0.3rem", background: "rgba(139, 92, 246, 0.15)", borderColor: "rgba(139, 92, 246, 0.3)", color: "#fff" }}
+                            onClick={async () => {
+                              const newPin = prompt(`Ingresa la nueva contraseña/PIN (4 números) para el repartidor ${c.nombre}:`);
+                              if (newPin && newPin.trim().length >= 4) {
+                                const newHash = await hashPassword(newPin.trim());
+                                if (onChangeCourierPin) {
+                                  onChangeCourierPin(c.id, newHash);
+                                  alert(`¡Contraseña de ${c.nombre} actualizada con éxito! Nuevo PIN: ${newPin.trim()}`);
+                                }
+                              } else if (newPin !== null) {
+                                alert("La contraseña debe tener al menos 4 números.");
+                              }
+                            }}
+                            title="Asignar o Cambiar Contraseña / PIN del repartidor"
+                          >
+                            <Key size={13} color="var(--primary)" />
+                            Clave
+                          </button>
+
+                          <button
+                            type="button"
+                            className="btn btn-danger"
+                            style={{ padding: "0.25rem 0.5rem" }}
+                            onClick={() => {
+                              if (window.confirm(`¿Seguro que deseas eliminar al repartidor ${c.nombre}?`)) {
+                                onDeleteCourier(c.id);
+                              }
+                            }}
+                            title="Eliminar repartidor"
+                          >
+                            <Trash2 size={13} />
+                          </button>
+                        </div>
                       </td>
                     </tr>
                   ))}

@@ -793,6 +793,7 @@ export default function App() {
             onDeleteProduct={handleDeleteProduct}
             onAssignCourier={handleAssignCourier}
             onUpdateStatus={handleUpdateStatus}
+            onChangeCourierPin={handleChangeCourierPin}
           />
         )}
 
