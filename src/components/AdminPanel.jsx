@@ -29,14 +29,14 @@ import ThermalTicketModal from "./ThermalTicketModal";
 import ExportReportButton from "./ExportReportButton";
 
 export default function AdminPanel({
-  orders,
-  couriers,
+  orders = [],
+  couriers = [],
   clients = [],
   products = [],
   transactions = [],
   adminPasswordHash,
   setAdminPasswordHash,
-  storeBase,
+  storeBase = {},
   onUpdateStoreBase,
   onRestoreBackup,
   onResetFactory,
