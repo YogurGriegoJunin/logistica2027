@@ -844,17 +844,17 @@ export default function AdminPanel({
                         return (
                           <tr key={order.id}>
                             <td style={{ fontWeight: "bold", fontSize: "0.85rem", color: "var(--text-muted)" }}>
-                              #{order.id.substring(4) || order.id}
+                              #{typeof order.id === "string" ? order.id.replace(/^ped-/, "") : order.id}
                             </td>
                             <td>
-                              <div style={{ fontWeight: "600" }}>{order.cliente}</div>
-                              <div style={{ fontSize: "0.75rem", color: "var(--text-muted)", marginBottom: "0.2rem" }}>{order.direccion}</div>
+                              <div style={{ fontWeight: "600" }}>{order.cliente || "Cliente"}</div>
+                              <div style={{ fontSize: "0.75rem", color: "var(--text-muted)", marginBottom: "0.2rem" }}>{order.direccion || "Sin dirección"}</div>
                               <div style={styles.articlesSummary}>
                                 <strong>Items:</strong> {articlesStr}
                               </div>
                             </td>
                             <td>
-                              <div style={{ fontWeight: "600" }}>${order.valor.toLocaleString()}</div>
+                              <div style={{ fontWeight: "600" }}>${(order.valor || 0).toLocaleString()}</div>
                               <div style={styles.paymentMethod}>
                                 {order.metodoPago === "efectivo" ? (
                                   <span style={{ color: "var(--success)" }}><DollarSign size={12} style={{ display: "inline" }} /> Efectivo</span>
@@ -873,7 +873,7 @@ export default function AdminPanel({
                                     {assignedCourier?.avatar || "??"}
                                   </span>
                                   <span style={{ fontSize: "0.85rem", fontWeight: "500" }}>
-                                    {assignedCourier?.nombre.split(" ")[0]}
+                                    {assignedCourier?.nombre ? String(assignedCourier.nombre).split(" ")[0] : "Cadete"}
                                   </span>
                                 </div>
                               ) : (
@@ -885,7 +885,7 @@ export default function AdminPanel({
                                   <option value="">Asignar...</option>
                                   {couriers.map((c) => (
                                     <option key={c.id} value={c.id}>
-                                      {c.nombre.split(" ")[0]} ({c.estado === "reparto" ? "Rep." : "Lib."})
+                                      {c.nombre ? String(c.nombre).split(" ")[0] : "Cadete"} ({c.estado === "reparto" ? "Rep." : "Lib."})
                                     </option>
                                   ))}
                                 </select>
