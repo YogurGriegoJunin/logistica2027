@@ -1,10 +1,10 @@
 /**
- * Real-Time Cloud Sync Engine for RapiConta Express.
+ * Real-Time Cloud Sync Engine for LogiExpress SaaS.
  * Synchronizes store database (orders, couriers, clients, products, transactions, admin password hash)
  * seamlessly across Admin PC and Courier Phones over the internet.
  */
 
-export const DEFAULT_CLOUD_BLOB_ID = "019fa00e-2009-7163-be6a-739e04fe9e08";
+export const DEFAULT_CLOUD_BLOB_ID = "logi_express_v2027_sync";
 export const CLOUD_API_BASE = "https://jsonblob.com/api/jsonBlob";
 
 export async function fetchStoreFromCloud(blobId = DEFAULT_CLOUD_BLOB_ID) {
@@ -18,7 +18,7 @@ export async function fetchStoreFromCloud(blobId = DEFAULT_CLOUD_BLOB_ID) {
       return data;
     }
   } catch (err) {
-    console.warn("Cloud Sync Fetch Notice:", err);
+    // Quiet handling for offline or initial sync setup
   }
   return null;
 }
@@ -27,19 +27,38 @@ export async function pushStoreToCloud(storeData, blobId = DEFAULT_CLOUD_BLOB_ID
   try {
     const activeId = blobId || DEFAULT_CLOUD_BLOB_ID;
     const payload = {
-      app: "RapiConta Express",
+      app: "LogiExpress SaaS",
       updatedAt: new Date().toISOString(),
       ...storeData
     };
 
-    const res = await fetch(`${CLOUD_API_BASE}/${activeId}`, {
+    let res = await fetch(`${CLOUD_API_BASE}/${activeId}`, {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(payload)
     });
+
+    if (!res.ok && res.status === 404) {
+      // Create new blob if not existing
+      res = await fetch(CLOUD_API_BASE, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload)
+      });
+      if (res.ok) {
+        const locationHeader = res.headers.get("Location");
+        if (locationHeader) {
+          const newId = locationHeader.split("/").pop();
+          try {
+            localStorage.setItem("rapiconta_cloud_sync_id", newId);
+          } catch (e) {}
+        }
+      }
+    }
+
     return res.ok;
   } catch (err) {
-    console.warn("Cloud Sync Push Notice:", err);
+    // Quiet handling for network notice
   }
   return false;
 }

@@ -290,7 +290,7 @@ export default function App() {
     };
 
     pullFromCloud();
-    const interval = setInterval(pullFromCloud, 5000);
+    const interval = setInterval(pullFromCloud, 15000);
     return () => {
       isMounted = false;
       clearInterval(interval);
