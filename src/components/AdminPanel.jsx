@@ -22,7 +22,9 @@ import {
   RotateCcw,
   Key,
   Printer,
-  MessageSquare
+  MessageSquare,
+  Activity,
+  Building
 } from "lucide-react";
 import { hashPassword } from "../utils/security";
 import ThermalTicketModal from "./ThermalTicketModal";
